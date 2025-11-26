@@ -95,13 +95,19 @@ let state = {
 
 // --- Constants (Including API Keys - REMINDER: These should be secured in a real app) ---
 const API_KEYS = {
-    GROQ: [
-     
+     GROQ: [
+        "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",
+        "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",
+        "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",
+        "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",
+        "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",
+        "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"
     ],
     UNSPLASH_ACCESS: [
-        
+        "n4cVM1wh-S3A7Mf3K6fWq-GmAyzZX1pNq08ekav62-w",
+        "YHsgrLsYMSIgE43R_cVYAVP59TvMdrNsNxoMuO1dse4"
     ],
-    WEATHER_API: "",
+    WEATHER_API: "34f15915dea1476bb0454358250311",
 };
 
 const BASE_TYPE_SPEED = 30; 
@@ -1713,4 +1719,5 @@ ui.chatWindow.addEventListener('scroll', () => {
             }, 1500); 
         };
     }
+
 });
