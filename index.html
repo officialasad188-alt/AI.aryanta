@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>aryanta AI</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #101012; --primary-text-color: #f0f0f0; --secondary-text-color: #a0a0a0;
+            --container-bg-color: rgba(22, 22, 25, 0.7); --sidebar-bg-color: rgba(16, 16, 18, 0.75);
+            --accent-color-primary: #8ab4f8; --accent-color-secondary: #9B72CB;
+            --user-message-bg: rgba(45, 46, 48, 0.9); --ai-message-bg: rgba(30, 32, 38, 0.9);
+            --border-color: rgba(255, 255, 255, 0.1); --shadow-color: rgba(138, 180, 248, 0.15);
+            --danger-color: #e57373;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-tap-highlight-color: transparent; outline: none; }
+        html, body { height: 100%; width: 100%; overflow: hidden; }
+        body {
+            font-family: 'Inter', sans-serif; 
+            color: var(--primary-text-color); display: flex;
+            justify-content: center; align-items: center; background: linear-gradient(135deg, #232526, #414345, #1c1e26, #2a2d39);
+            background-size: 400% 400%; animation: gradient-animation 20s ease infinite; user-select: none;
+            padding: 0; 
+        }
+        
+        body.temp-chat-active-border {
+            border: 3px dashed var(--danger-color);
+            border-radius: 20px; 
+            height: calc(100% - 6px); 
+            width: calc(100% - 6px); 
+        }
+
+        @keyframes gradient-animation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        #start-screen { display: none; }
+        
+        #logo { width: 120px; margin-bottom: 25px; animation: fadeInUp 0.8s ease-out 0.2s backwards; }
+        #start-screen h1 { font-size: 5rem; font-weight: 600; background: linear-gradient(90deg, var(--accent-color-primary), var(--accent-color-secondary), #D96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 30px; }
+        #startButton { background-image: linear-gradient(90deg, var(--accent-color-primary), var(--accent-color-secondary)); color: #fff; border: none; border-radius: 12px; padding: 14px 40px; font-size: 18px; font-weight: 500; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); }
+        #startButton:hover { transform: translateY(-3px); box-shadow: 0 6px 25px var(--shadow-color); }
+        
+        #app-container { 
+            width: 100%; 
+            height: 100%;
+            display: flex !important; 
+            flex-direction: row; 
+            background-color: var(--container-bg-color); 
+            backdrop-filter: blur(20px); 
+            opacity: 1 !important; 
+            transform: scale(1) !important; 
+            transition: opacity 0.5s ease-in, transform 0.5s ease-in, border 0.3s ease; 
+            position: relative; 
+            border-radius: 0; 
+            box-shadow: none; 
+            overflow: hidden; 
+        }
+        /* Fix for small images inside AI message bubble */
+.ai-message .image-wrapper {
+    display: inline-block;
+    max-width: 180px;
+    max-height: 180px;
+    margin-top: 10px;
+    margin-right: 10px;
+    vertical-align: top;
+}
+
+.ai-message .image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Ensure AI message text stays inside bubble */
+.ai-message .message-text-content {
+    display: block;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+        
+        #sidebar { 
+            width: 260px; 
+            background-color: var(--sidebar-bg-color); 
+            padding: 20px; 
+            border-right: 1px solid var(--border-color); 
+            display: flex; 
+            flex-direction: column; 
+            flex-shrink: 0; 
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease, pointer-events 0.3s ease, width 0.3s ease-in-out;
+            box-shadow: 4px 0px 20px rgba(0, 0, 0, 0.1);
+            z-index: 101; 
+        }
+        
+        #sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(35, 37, 38, 0.8), rgba(65, 67, 69, 0.8));
+            border: 1px solid transparent;
+            background-clip: padding-box;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        #sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            z-index: -1;
+            margin: -1px; 
+            border-radius: inherit;
+            background: linear-gradient(135deg, var(--accent-color-primary), var(--accent-color-secondary), #D96570);
+            animation: gradient-animation 10s ease infinite; 
+            background-size: 400% 400%;
+        }
+        #sidebar-logo {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+        #sidebar-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-text-color);
+            white-space: nowrap;
+        }
+        #sidebar-premium-tag {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: #000;
+            background: linear-gradient(90deg, #f0c784, #ffd700);
+            padding: 3px 6px;
+            border-radius: 5px;
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .sidebar-main { flex-grow: 1; display: flex; flex-direction: column; gap: 15px; overflow: hidden; }
+        #newChatButton { width: 100%; background-color: transparent; border: 1px solid var(--border-color); color: var(--primary-text-color); padding: 12px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; }
+        #newChatButton:hover { background-color: rgba(255, 255, 255, 0.05); border-color: var(--accent-color-primary); }
+        #chatHistory { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        #chatHistory::-webkit-scrollbar { width: 6px; } #chatHistory::-webkit-scrollbar-track { background: transparent; }
+        #chatHistory::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; } #chatHistory::-webkit-scrollbar-thumb:hover { background: #555; }
+        .history-item-container { display: flex; align-items: center; position: relative; }
+        .history-item { flex-grow: 1; background: none; border: none; color: var(--secondary-text-color); padding: 12px; border-radius: 8px; text-align: left; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: all 0.2s ease; font-weight: 400; }
+        .history-item:hover { background-color: var(--user-message-bg); color: var(--primary-text-color); }
+        .history-item.active { background-color: var(--user-message-bg); color: var(--primary-text-color); font-weight: 500; }
+        .history-menu-btn { background: none; border: none; color: var(--secondary-text-color); cursor: pointer; padding: 8px; border-radius: 50%; line-height: 1; margin-left: 5px; transition: all 0.2s ease; }
+        .history-menu-btn:hover { background-color: var(--user-message-bg); color: var(--primary-text-color); }
+        .history-dropdown { display: none; position: absolute; right: 0; top: 40px; background-color: #2c2d32; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 10; width: 120px; overflow: hidden; }
+        .history-dropdown.show { display: block; }
+        .dropdown-item { background: none; border: none; color: var(--primary-text-color); width: 100%; padding: 10px 15px; text-align: left; cursor: pointer; transition: all 0.2s ease; }
+        .dropdown-item:hover { background-color: var(--accent-color-primary); color: var(--bg-color); }
+        .sidebar-footer { padding-top: 15px; border-top: 1px solid var(--border-color); }
+        .sidebar-button { width: 100%; background: none; border: none; color: var(--secondary-text-color); padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 15px; font-family: 'Inter', sans-serif; transition: all 0.2s ease; text-decoration: none; }
+        .sidebar-button:hover { background-color: var(--user-message-bg); color: var(--primary-text-color); }
+        #chat-interface { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+        #chat-header { position: absolute; top: 0; left: 0; width: 100%; display: flex; align-items: center; padding: 10px 15px; z-index: 100; }
+        
+        #menu-toggle-button { 
+            display: none; 
+            background: var(--user-message-bg); 
+            border: 1px solid var(--border-color); 
+            color: var(--primary-text-color); 
+            border-radius: 8px; 
+            padding: 8px; 
+            cursor: pointer; 
+        }
+        #sidebar-toggle-button {
+            display: none; 
+            background: var(--user-message-bg);
+            border: 1px solid var(--border-color);
+            color: var(--primary-text-color);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            margin-left: 15px; 
+            transition: all 0.2s ease;
+        }
+        #sidebar-toggle-button:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        #tools-button {
+            background: var(--user-message-bg);
+            border: 1px solid var(--border-color);
+            color: var(--primary-text-color);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            margin-left: auto; 
+            margin-right: 15px; 
+            position: relative; 
+        }
+        #tools-button svg { width: 20px; height: 20px; }
+        #tools-dropdown {
+            display: none;
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background-color: #2c2d32;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1001;
+            width: 280px;
+            padding: 15px;
+        }
+        #tools-dropdown.show { display: block; }
+        #tools-dropdown .setting-option { 
+            background-color: rgba(255,255,255,0.05);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        #tools-dropdown .setting-option:last-child { margin-bottom: 0; }
+        #tools-dropdown .dropdown-item {
+            font-size: 14px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid transparent; 
+        }
+        #tools-dropdown .dropdown-item:last-child { margin-bottom: 0; }
+        #tools-dropdown .dropdown-item:hover {
+            background-color: var(--accent-color-primary);
+            color: var(--bg-color);
+        }
+        #tools-dropdown .dropdown-item.temp-chat-active {
+            border: 1px dashed var(--danger-color);
+            color: var(--danger-color);
+        }
+        #tools-dropdown .dropdown-item.temp-chat-active:hover {
+            background-color: rgba(229, 115, 115, 0.1);
+            color: var(--danger-color);
+        }
+
+
+        #chat-logo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; opacity: 0.069; pointer-events: none; transition: opacity 0.5s ease; }
+        .chat-window { flex-grow: 1; padding: 70px 30px 20px 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .chat-window::-webkit-scrollbar { width: 8px; } .chat-window::-webkit-scrollbar-track { background: transparent; }
+        .chat-window::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; } .chat-window::-webkit-scrollbar-thumb:hover { background: #444; }
+        .message-pair { display: flex; flex-direction: column; gap: 15px; }
+        .user-message, .ai-message { position: relative; display: flex; align-items: flex-start; padding: 14px 20px; border-radius: 20px; max-width: 80%; word-wrap: break-word; animation: fadeInUp 0.4s ease-out; white-space: pre-wrap; line-height: 1.6; }
+        .user-message { background-color: var(--user-message-bg); border-bottom-right-radius: 6px; align-self: flex-end; color: #d0d0d0; }
+        .ai-message { background-color: var(--ai-message-bg); border-bottom-left-radius: 6px; align-self: flex-start; }
+        .message-content { flex-grow: 1; }
+        .message-text-content, textarea#userInput { user-select: text; }
+        .ai-message pre { font-family: 'SF Mono', 'Consolas', monospace; font-size: 0.9em; padding: 15px; margin-top: 10px; background-color: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; white-space: pre-wrap; line-height: 1.5; color: #c5c5c5; }
+        
+        /* UPDATED IMAGE STYLES FOR GALLERY */
+        .ai-message img, .user-message img { max-width: 100%; border-radius: 12px; cursor: pointer; transition: opacity 0.2s ease; }
+        .ai-message img:hover, .user-message img:hover { opacity: 0.8; }
+        
+        .image-gallery {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        .image-gallery figure {
+            margin: 0;
+            flex: 0 0 auto;
+            width: 200px; 
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .image-gallery img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .user-message b, .ai-message b { display: block; margin-bottom: 5px; font-weight: 600; }
+        .user-message b { color: var(--accent-color-primary); } .ai-message b { color: var(--accent-color-secondary); }
+        
+        .ai-message b {
+            display: inline; 
+            margin-bottom: 0; 
+        }
+        .ai-message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px; 
+        }
+        .requests-log-btn {
+            font-size: 0.7em;
+            font-weight: 600;
+            color: var(--secondary-text-color);
+            cursor: pointer;
+            margin-left: 8px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+        .requests-log-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary-text-color);
+        }
+        
+        .speak-btn { background: none; border: none; cursor: pointer; padding: 0; margin-left: 12px; opacity: 0.6; transition: opacity 0.2s ease; }
+        .speak-btn:hover { opacity: 1; } .speak-btn svg { width: 18px; height: 18px; fill: var(--secondary-text-color); }
+        .speak-btn.speaking svg { animation: pulse 1.2s infinite ease-in-out; fill: var(--accent-color-primary); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .input-area-container { display: flex; flex-direction: column; }
+        .input-area { display: flex; align-items: center; padding: 15px 30px; border-top: 1px solid var(--border-color); background-color: var(--sidebar-bg-color); flex-shrink: 0; }
+        .input-wrapper { flex-grow: 1; position: relative; display: flex; flex-direction: column; background-color: #2a2b2c; border-radius: 12px; transition: box-shadow 0.2s ease; }
+        .input-wrapper:focus-within { box-shadow: 0 0 0 2px var(--accent-color-primary); }
+        .input-controls { display: flex; align-items: center; width: 100%; padding: 0 10px; }
+        textarea#userInput { flex-grow: 1; background-color: transparent; border: none; padding: 15px 10px; color: var(--primary-text-color); font-family: 'Inter', sans-serif; font-size: 16px; resize: none; height: 52px; outline: none; max-height: 150px; overflow-y: auto; width: 100%; }
+        .input-button { background: none; border: none; cursor: pointer; padding: 10px; margin: 0 2px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .input-button svg { width: 24px; height: 24px; fill: var(--secondary-text-color); transition: fill 0.2s ease; }
+        .input-button:hover:not(:disabled) svg { fill: var(--accent-color-primary); }
+        #sendButton { background: var(--accent-color-primary); border-radius: 8px; margin-left: 10px; }
+        #sendButton svg { fill: var(--bg-color); } #sendButton:hover:not(:disabled) { background: #79a6f7; }
+        
+        #stopButton {
+            animation: pulse-stop 0.8s infinite alternate ease-in-out;
+        }
+        #stopButton svg { fill: var(--danger-color); }
+        #stopButton:hover svg { fill: #f55; transform: scale(1.1); }
+        @keyframes pulse-stop {
+        from { transform: scale(0.95); opacity: 0.8; }
+        to { transform: scale(1.05); opacity: 1; }
+        }
+        
+        #predefined-questions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 20px; padding: 0 30px; animation: fadeInUp 0.6s ease-out 0.3s backwards; display: none; }
+        .predefined-q { background-color: rgba(255, 255, 255, 0.05); color: var(--primary-text-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 10px 18px; font-size: 14px; font-weight: 400; cursor: pointer; transition: all 0.2s ease; }
+        .predefined-q:hover { background-color: rgba(255, 255, 255, 0.1); border-color: var(--accent-color-primary); transform: translateY(-2px); }
+        .typing-cursor::after { content: '▋'; animation: blink 1s step-end infinite; color: var(--accent-color-secondary); margin-left: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--sidebar-bg-color); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px 30px; width: 90%; max-width: 500px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); animation: fadeInUp 0.4s ease-out; }
+        .modal-header { display: flex; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-weight: 500; flex-grow: 1; }
+        .back-button { background: none; border: none; color: var(--primary-text-color); cursor: pointer; display: none; margin-right: 15px; }
+        .back-button svg { width: 24px; height: 24px; }
+        .setting-option, .language-option, .main-setting-item { display: flex; justify-content: space-between; align-items: center; background-color: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 8px; border: 1px solid transparent; transition: all 0.2s ease; margin-bottom: 15px; cursor: pointer; }
+        .main-setting-item:hover { border-color: var(--border-color); }
+        .language-option { justify-content: flex-start; gap: 12px; }
+        .language-option:hover { border-color: var(--border-color); }
+        .language-option input { accent-color: var(--accent-color-primary); }
+        .modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .modal-button { border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; text-decoration: none; }
+        #saveSettingsButton, #saveMemoriesButton { background-color: var(--accent-color-primary); color: var(--bg-color); }
+        #saveSettingsButton:hover, #saveMemoriesButton:hover { opacity: 0.9; }
+        #closeModalButton { background-color: var(--user-message-bg); color: var(--primary-text-color); }
+        #closeModalButton:hover { background-color: #444; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent-color-primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        
+        #image-modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background-color: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); 
+            display: none; justify-content: center; align-items: center; 
+            z-index: 2000; opacity: 0; transition: opacity 0.3s ease;
+            flex-direction: column; 
+            gap: 20px;
+        }
+        #image-modal.show { display: flex; opacity: 1; }
+        .fullscreen-image { 
+            max-width: 90vw; max-height: 75vh; 
+            object-fit: contain; border-radius: 8px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); 
+        }
+        .close-image-button { 
+            position: absolute; top: 20px; right: 25px; 
+            background: rgba(20,20,20,0.6); border: 1px solid rgba(255,255,255,0.1);
+            color: white; width: 44px; height: 44px; 
+            border-radius: 50%; font-size: 30px; line-height: 44px; 
+            text-align: center; cursor: pointer; transition: all 0.3s ease; 
+        }
+        .close-image-button:hover { 
+            background: rgba(0,0,0,0.8); transform: scale(1.1) rotate(90deg); 
+        }
+        .image-modal-controls {
+            display: flex;
+            gap: 15px;
+            z-index: 2001;
+        }
+        .image-modal-controls .modal-button {
+            background-color: var(--user-message-bg); 
+            color: var(--primary-text-color);
+        }
+        .image-modal-controls .modal-button:hover { opacity: 0.9; }
+        .image-modal-controls .modal-button.primary {
+            background-color: var(--accent-color-primary);
+            color: var(--bg-color);
+        }
+        #imageDownloadButton {
+            background-color: var(--accent-color-primary);
+            color: var(--bg-color);
+        }
+        
+        .settings-view { display: none; } .settings-view.active { display: block; }
+        .voice-option { display: flex; align-items: center; gap: 12px; background-color: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; margin-bottom: 10px; }
+        .voice-option:hover { border-color: var(--border-color); }
+        .voice-option.selected { border-color: var(--accent-color-primary); background-color: rgba(138, 180, 248, 0.1); }
+        .voice-option svg { width: 20px; height: 20px; fill: var(--secondary-text-color); flex-shrink: 0; }
+        .voice-option.selected svg { fill: var(--accent-color-primary); }
+        .data-button, .modal-button.danger { background-color: var(--user-message-bg); color: var(--primary-text-color); border: 1px solid var(--border-color); width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; margin-bottom: 10px; transition: background-color 0.2s ease; }
+        .data-button:hover { background-color: #444; }
+        .data-button.danger, .modal-button.danger { background-color: rgba(229, 115, 115, 0.2); border-color: var(--danger-color); color: var(--danger-color); }
+        .data-button.danger:hover, .modal-button.danger:hover { background-color: rgba(229, 115, 115, 0.4); }
+        
+        #memoryTextArea {
+            width: 100%;
+            height: 200px;
+            background-color: #2a2b2c;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--primary-text-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            resize: vertical;
+        }
+        #memorySettings p {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+            margin-bottom: 15px;
+        }
+
+        .speed-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #333;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        .speed-slider:hover { opacity: 1; }
+        .speed-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .speed-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .loading-indicator { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 15px; 
+            padding: 20px; 
+            margin: 0 auto; 
+            color: var(--secondary-text-color); 
+            animation: fadeInUp 0.4s ease-out; 
+            cursor: default; 
+        }
+        .loading-indicator .logo-container { position: relative; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .loading-indicator .spinner { position: absolute; width: 100%; height: 100%; border: 4px solid transparent; border-top-color: var(--accent-color-primary); border-radius: 50%; animation: rotate 1.5s linear infinite; }
+        .loading-indicator img { width: 50px; height: 50px; }
+        .loading-indicator p { font-size: 0.9em; }
+        .ellipsis::after { display: inline-block; animation: ellipsis 1.5s infinite; content: "."; width: 1em; text-align: left; }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes ellipsis { 0% { content: "."; } 33% { content: ".."; } 66% { content: "..."; } }
+
+        .message-actions { display: flex; gap: 8px; margin-top: 10px; opacity: 0; transition: opacity 0.2s ease-in-out; }
+        .user-message:hover .message-actions, .ai-message:hover .message-actions { opacity: 1; }
+        .action-btn { background: none; border: none; cursor: pointer; padding: 4px; color: var(--secondary-text-color); }
+        .action-btn svg { width: 16px; height: 16px; fill: currentColor; }
+        .action-btn:hover { color: var(--primary-text-color); }
+        .action-btn.liked { color: var(--accent-color-primary); }
+        .action-btn.disliked { color: var(--danger-color); }
+
+        .disclaimer-text {
+            font-size: 12px;
+            color: var(--secondary-text-color);
+            text-align: center;
+            padding: 0 30px 10px 30px;
+            transition: color 0.3s ease; 
+        }
+        .disclaimer-text a {
+            color: var(--accent-color-primary);
+            text-decoration: none;
+        }
+        .disclaimer-text a:hover {
+            text-decoration: underline;
+        }
+        .data-button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .data-option-btn {
+            background-color: var(--user-message-bg);
+            color: var(--primary-text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-grow: 1;
+            font-size: 14px;
+        }
+        .data-option-btn:hover {
+            background-color: #444;
+        }
+        .data-option-btn.selected {
+            background-color: var(--accent-color-primary);
+            color: var(--bg-color);
+            border-color: var(--accent-color-primary);
+            font-weight: 500;
+        }
+
+        #live-mode-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(16, 16, 18, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 5000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        #live-logo {
+            width: 150px;
+            cursor: pointer;
+            border-radius: 50%;
+            animation: glow 3s infinite ease-in-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        #live-logo:hover {
+            transform: scale(1.05);
+        }
+        #live-logo.listening {
+            animation: glow-intense 1.5s infinite ease-in-out;
+        }
+        #live-status {
+            margin-top: 30px;
+            font-size: 1.2rem;
+            color: var(--secondary-text-color);
+            height: 30px; 
+            transition: color 0.3s ease;
+        }
+        #closeLiveModeButton {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--primary-text-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        #closeLiveModeButton:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(138, 180, 248, 0.3), 0 0 20px rgba(155, 114, 203, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(138, 180, 248, 0.5), 0 0 40px rgba(155, 114, 203, 0.4); }
+        }
+        @keyframes glow-intense {
+            0%, 100% { box-shadow: 0 0 30px rgba(138, 180, 248, 0.6), 0 0 45px rgba(155, 114, 203, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(138, 180, 248, 1), 0 0 70px rgba(155, 114, 203, 0.8); }
+        }
+
+        #shareModal .modal-content {
+            max-width: 550px;
+        }
+        #shareModal .modal-header {
+            position: relative; 
+        }
+        #shareModal .close-image-button {
+            position: absolute; 
+            top: -10px; 
+            right: -5px; 
+            background: rgba(20,20,20,0.6); 
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white; 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            font-size: 28px; 
+            line-height: 36px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            z-index: 1001;
+        }
+        #shareModal .close-image-button:hover {
+            background: rgba(0,0,0,0.8); 
+            transform: scale(1.1) rotate(90deg); 
+        }
+        
+        #share-content-preview {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 40vh;
+            height: 250px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: var(--primary-text-color);
+            resize: vertical;
+            white-space: pre-wrap; 
+        }
+        
+        #shareModal .modal-buttons {
+            justify-content: center;
+        }
+        #shareModal #shareModalCopy,
+        #shareModal #shareModalClose {
+            display: none; 
+        }
+        #shareModalWhatsapp {
+            background-color: #25D366;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #shareModalWhatsapp svg { width: 20px; height: 20px; fill: white; }
+        #shareModalWhatsapp:hover { opacity: 0.9; }
+
+        #toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #2c2d32;
+            border: 1px solid var(--border-color);
+            color: var(--primary-text-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        #toast-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #settingsModal .modal-header {
+            position: relative;
+        }
+        #settingsModal .close-image-button {
+            position: absolute; 
+            top: -10px; 
+            right: -5px; 
+            background: rgba(20,20,20,0.6); 
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white; 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            font-size: 28px; 
+            line-height: 36px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            z-index: 1001;
+        }
+        #settingsModal .close-image-button:hover {
+            background: rgba(0,0,0,0.8); 
+            transform: scale(1.1) rotate(90deg); 
+        }
+
+        #apiLogModal .modal-content {
+            max-width: 600px;
+        }
+        #apiLogModal .modal-header {
+            position: relative;
+        }
+        #apiLogModal .close-image-button {
+            position: absolute; top: -10px; right: -5px; background: rgba(20,20,20,0.6);
+            border: 1px solid rgba(255,255,255,0.1); color: white; width: 36px; height: 36px;
+            border-radius: 50%; font-size: 28px; line-height: 36px; text-align: center;
+            cursor: pointer; transition: all 0.3s ease; z-index: 1001;
+        }
+        #apiLogModal .close-image-button:hover {
+            background: rgba(0,0,0,0.8); transform: scale(1.1) rotate(90deg);
+        }
+        #api-log-content {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 60vh;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: var(--secondary-text-color);
+        }
+        #api-log-content > div { margin-bottom: 15px; }
+        #api-log-content strong { color: var(--primary-text-color); display: block; margin-bottom: 5px; }
+        #api-log-content pre { white-space: pre-wrap; word-wrap: break-word; }
+
+        #ask-about-popup {
+            position: absolute;
+            z-index: 9999;
+            background-color: #2c2d32;
+            border: 1px solid var(--border-color);
+            color: var(--primary-text-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.1s ease;
+        }
+        #ask-about-popup:hover {
+            background-color: #3a3b40;
+        }
+        #ask-about-popup svg {
+            margin-bottom: 2px;
+        }
+
+
+        @media (max-width: 768px) {
+            body { padding: 0; }
+            #start-screen { width: 100%; height: 100%; border-radius: 0; justify-content: center; }
+            #start-screen h1 { font-size: 3rem; }
+            #app-container { height: 100%; border: none; border-radius: 0; box-shadow: none; }
+            body.temp-chat-active-border { border: none; height: 100%; width: 100%; }
+            #app-container.temp-chat-active-border { border: 3px dashed var(--danger-color); }
+            #chat-interface { height: 100%; }
+            #sidebar { position: absolute; left: 0; top: 0; height: 100%; z-index: 100; transform: translateX(-100%); }
+            #sidebar.show { transform: translateX(0); }
+            #chat-header { padding: 10px; }
+            
+            #menu-toggle-button { display: flex; }
+            #sidebar-toggle-button { display: none !important; }
+
+            #sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 99; display: none; }
+            #sidebar-overlay.show { display: block; }
+            .chat-window { padding: 60px 15px 0 15px; }
+            .input-area-container { padding-bottom: calc(env(safe-area-inset-bottom)); }
+            .input-area { padding: 10px 15px; }
+            .user-message, .ai-message { max-width: 90%; }
+            textarea#userInput { font-size: 15px; }
+            .predefined-q { font-size: 13px; padding: 8px 15px; }
+            .message-actions { opacity: 0.4; }
+            #live-logo { width: 120px; }
+            #closeLiveModeButton { top: 20px; right: 20px; }
+            .image-modal-controls { flex-direction: column; width: 80vw; }
+            .image-modal-controls .modal-button { text-align: center; }
+            #tools-button { margin-right: 10px; }
+            #tools-dropdown { right: 10px; width: calc(100vw - 20px); max-width: 280px; }
+
+            #toast-notification {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                text-align: center;
+                bottom: calc(env(safe-area-inset-bottom) + 10px); 
+            }
+        }
+        
+        @media (min-width: 769px) {
+            #sidebar-toggle-button {
+                display: flex; 
+            }
+            #menu-toggle-button {
+                display: none; 
+            }
+            
+            body.sidebar-collapsed #sidebar {
+                transform: translateX(0); 
+                width: 80px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            body.sidebar-collapsed #sidebar-header {
+                padding: 15px 0;
+                justify-content: center;
+            }
+            body.sidebar-collapsed #sidebar-logo {
+                width: 36px; height: 36px;
+            }
+            body.sidebar-collapsed #sidebar-title,
+            body.sidebar-collapsed #sidebar-premium-tag,
+            body.sidebar-collapsed .sidebar-main #newChatButton span,
+            body.sidebar-collapsed .sidebar-footer .sidebar-button span,
+            body.sidebar-collapsed .history-item,
+            body.sidebar-collapsed .history-menu-btn,
+            body.sidebar-collapsed #chatHistory hr {
+                display: none;
+            }
+            body.sidebar-collapsed .sidebar-main,
+            body.sidebar-collapsed .sidebar-footer {
+                align-items: center;
+            }
+            body.sidebar-collapsed #newChatButton,
+            body.sidebar-collapsed .sidebar-button {
+                width: 48px;
+                height: 48px;
+                justify-content: center;
+            }
+            body.sidebar-collapsed .history-item-container {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <img id="logo" src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png" alt="Aryanta AI Logo">
+        <h1>aryanta AI</h1>
+        <button id="startButton">Start Chatting</button>
+    </div>
+
+    <div id="app-container">
+        <div id="sidebar-overlay"></div>
+        <div id="sidebar">
+            <div id="sidebar-header">
+                <img id="sidebar-logo" src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png" alt="Logo">
+                <span id="sidebar-title">ARYANTA </span>
+                <span id="sidebar-premium-tag">AI</span>
+            </div>
+            <div class="sidebar-main">
+                <button id="newChatButton">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span id="newChatText">New Chat</span>
+                </button>
+                <hr style="border-color: var(--border-color); margin: 5px 0;">
+                <div id="chatHistory"></div>
+            </div>
+            <div class="sidebar-footer">
+                <button id="liveModeButton" class="sidebar-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line></svg>
+                    <span>Aryanta Live</span>
+                </button>
+                <a href="https://example.com" target="_blank" id="aboutButton" class="sidebar-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    <span>About Aryanta</span>
+                </a>
+                <button id="settingsButton" class="sidebar-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span id="settingsText">Settings</span>
+                </button>
+            </div>
+        </div>
+        <div id="chat-interface">
+            <div id="chat-header">
+                <button id="menu-toggle-button" aria-label="Toggle Menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                
+                <button id="sidebar-toggle-button" aria-label="Toggle Sidebar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                </button>
+                <button id="tools-button" aria-label="Toggle Tools">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 7.14V16.8a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7.14a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1z"></path>
+                        <path d="M8 7.14V4.1a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3.04"></path>
+                    </svg>
+                    </button>
+                <div id="tools-dropdown">
+                    <button class="dropdown-item" id="toolsTempChatButton">Temporary Chat</button>
+                    <label class="setting-option">
+                        <span>Image Generation</span>
+                        <label class="switch"><input type="checkbox" id="imageGenToggle"><span class="slider"></span></label>
+                    </label>
+                    <label class="setting-option">
+                        <span>Student Mode</span>
+                        <label class="switch"><input type="checkbox" id="studentModeToggle"><span class="slider"></span></label>
+                    </label>
+                </div>
+            </div>
+
+            <img id="chat-logo-watermark" src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png" alt="Chat Watermark">
+            <div class="chat-window" id="chatWindow"></div>
+            <div class="input-area-container">
+                <div id="predefined-questions"></div>
+                <div class="input-area">
+                    <div class="input-wrapper">
+                        <div class="input-controls">
+                            <textarea id="userInput" placeholder="Ask aryanta AI anything..." spellcheck="true" rows="1"></textarea>
+                            <button id="stopButton" class="input-button" title="Stop Generating" style="display: none;" aria-label="Stop Generating">
+                                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-2-10h4v4h-4z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button id="sendButton" class="input-button" title="Send" aria-label="Send Message"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg></button>
+                </div>
+                <p class="disclaimer-text" id="disclaimer-text">Aryanta AI can provide inaccurate information. Please verify important details.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="live-mode-overlay">
+        <button id="closeLiveModeButton">&times;</button>
+        <img id="live-logo" src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png" alt="Aryanta AI Live Logo">
+        <p id="live-status">Click the logo to speak</p>
+    </div>
+
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="back-button" id="settingsBackButton">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
+                </button>
+                <h2 id="settingsTitle">Settings</h2>
+                <button class="close-image-button" id="settingsModalXClose">&times;</button>
+            </div>
+            
+            <div id="mainSettings" class="settings-view active">
+                <div class="main-setting-item" data-view="languageSettings"><span>Language</span><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path></svg></div>
+                <div class="main-setting-item" data-view="voiceSettings"><span>Voice</span><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path></svg></div>
+                <div class="main-setting-item" data-view="objectiveSettings"><span>Objective</span><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path></svg></div>
+                <div class="main-setting-item" data-view="dataSettings"><span>Data & Personalization</span><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path></svg></div>
+                <div class="main-setting-item" data-view="memorySettings"><span>Manage Your Memories</span><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"></path></svg></div>
+            </div>
+
+            <div id="languageSettings" class="settings-view">
+                <label class="language-option"><input type="radio" name="language" value="auto" checked><span>Auto-Detect</span></label>
+                <label class="language-option"><input type="radio" name="language" value="en"><span>English</span></label>
+                <label class="language-option"><input type="radio" name="language" value="hinglish"><span>Hinglish</span></label>
+                <label class="language-option"><input type="radio" name="language" value="hi"><span>हिन्दी (Hindi)</span></label>
+            </div>
+
+            <div id="voiceSettings" class="settings-view">
+                <div id="voiceSelectionContainer"><p>Loading voices...</p></div>
+            </div>
+            
+            <div id="objectiveSettings" class="settings-view">
+                <label class="setting-option">
+                    <span>Typing Animation</span>
+                    <label class="switch"><input type="checkbox" id="typingAnimationToggle" checked><span class="slider"></span></label>
+                </label>
+                <div class="setting-option" style="flex-direction: column; align-items: flex-start; cursor: default;">
+                    <label for="typingSpeedSlider" style="margin-bottom: 10px; width: 100%;">Animation Speed: <span id="typingSpeedLabel" style="float: right;">100%</span></label>
+                    <input type="range" min="25" max="200" value="100" step="25" class="speed-slider" id="typingSpeedSlider">
+                </div>
+                <label class="setting-option">
+                    <span>Auto-add memories (Beta)</span>
+                    <label class="switch"><input type="checkbox" id="autoAddMemoryToggle"><span class="slider"></span></label>
+                </label>
+            </div>
+            
+            <div id="dataSettings" class="settings-view">
+                <p style="margin-bottom: 10px; color: var(--secondary-text-color); font-size: 14px;">How would you like me to respond?</p>
+                <div class="data-button-group" id="persona-options" style="margin-bottom: 20px;">
+                    <button class="data-option-btn" data-persona="default">Default</button>
+                    <button class="data-option-btn" data-persona="friendly">Friendly</button>
+                    <button class="data-option-btn" data-persona="professional">Professional</button>
+                    <button class="data-option-btn" data-persona="humorous">Humorous</button>
+                </div>
+                <p style="margin-bottom: 10px; color: var(--secondary-text-color); font-size: 14px;">Answer Style</p>
+                <div class="data-button-group" id="answer-style-options">
+                    <button class="data-option-btn" data-style="default">Default</button>
+                    <button class="data-option-btn" data-style="simple">Simple</button>
+                    <button class="data-option-btn" data-style="under30">Under 30 Words</button>
+                    <button class="data-option-btn" data-style="under120">Under 120 Words</button>
+                    <button class="data-option-btn" data-style="full">Full Answer</button>
+                </div>
+                <hr style="border-color: var(--border-color); margin: 25px 0 20px;">
+                <p style="margin-bottom: 10px; color: var(--secondary-text-color); font-size: 14px;">Your ID: <b id="aryantaIdDisplay" style="color: var(--primary-text-color); word-break: break-all;"></b></p>
+                <button class="data-button danger" id="clearAllButton">Clear All Chats</button>
+                <button class="data-button danger" id="deleteAllDataButton">Delete All Local Data</button>
+                <p style="margin-bottom: 10px; color: var(--secondary-text-color); font-size: 14px;">Aryanta version 3.0.0</p>
+            </div>
+
+            <div id="memorySettings" class="settings-view">
+                <p>Here you can store personal facts, preferences, or notes. Aryanta AI will use this information to provide more personalized responses. Each fact should be on a new line.</p>
+                <textarea id="memoryTextArea" placeholder="Example: I am a student studying computer science.&#10;Example: My favorite color is blue.&#10;Example: I live in Mumbai."></textarea>
+                <div class="modal-buttons" style="justify-content: flex-end; margin-top: 15px;">
+                    <button id="saveMemoriesButton" class="modal-button">Save Memories</button>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button id="closeModalButton" class="modal-button">Close</button>
+                <button id="saveSettingsButton" class="modal-button">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="image-modal">
+        <button class="close-image-button premium-close">&times;</button>
+        <img src="" alt="Fullscreen Image" class="fullscreen-image">
+        <div class="image-modal-controls">
+            <button id="imageDownloadButton" class="modal-button primary">Download</button>
+            <a id="imageOpenLink" href="#" target="_blank" class="modal-button">Open in New Tab</a>
+            <button id="imageCopyUrlButton" class="modal-button">Copy URL</button>
+        </div>
+    </div>
+
+    <div id="shareModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Share Conversation</h2>
+                <button class="close-image-button" id="shareModalXClose">&times;</button>
+            </div>
+            
+            <textarea id="share-content-preview" readonly></textarea>
+            <div class="modal-buttons">
+                <div>
+                    <button id="shareModalWhatsapp" class="modal-button" style="background-color:#25D366;color:white;display:flex;align-items:center;gap:8px;">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtR32csbf0DUdpb_QkGapA-45Pc2Mp7U4Nyg&s"
+         alt="WhatsApp Logo"
+         style="width:22px;height:22px;border-radius:5px;">
+    Share to WhatsApp
+</button>
+    
+                </div>
+                <div style="display: none;">
+                    <button id="shareModalCopy" class="modal-button">Copy Text</button>
+                    <button id="shareModalClose" class="modal-button">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="apiLogModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>API Call Details</h2>
+                <button class="close-image-button" id="apiLogModalXClose">&times;</button>
+            </div>
+            <div id="api-log-content"></div>
+        </div>
+    </div>
+
+    <div id="toast-notification"></div>
+
+    <button id="ask-about-popup" style="display: none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12h-2v-2h2v2zm0-4h-2V6h2v4z"></path></svg>
+        Ask about this
+    </button>
+    
+    <script src="script.js" defer></script>
+
+</body>
+</html>
