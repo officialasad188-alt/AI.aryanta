@@ -859,6 +859,103 @@
                 justify-content: center;
             }
         }
+        /* ===== MOBILE UI FIX ===== */
+@media (max-width: 600px) {
+
+  body {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  #app-container {
+    flex-direction: column;
+  }
+
+  #sidebar {
+    width: 100%;
+    position: fixed;
+    z-index: 999;
+    height: 100vh;
+  }
+
+  .chat-window {
+    padding: 60px 12px 80px 12px;  /* was 70px 30px 20px */
+    font-size: 14px;
+  }
+
+  .user-message,
+  .ai-message {
+    max-width: 100%;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .message-text-content {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .input-area {
+    padding: 10px;
+  }
+
+  textarea#userInput {
+    font-size: 14px;
+    height: auto;
+    min-height: 44px;
+    max-height: 120px;
+  }
+
+  #sendButton {
+    padding: 6px 10px;
+  }
+
+  .image-gallery figure {
+    width: 140px;
+  }
+
+  .image-gallery img {
+    height: 100px;
+  }
+
+  #chat-logo-watermark {
+    width: 160px;
+  }
+}
+/* ===== MOBILE SIDEBAR FIX ===== */
+@media (max-width: 768px) {
+
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;          /* hidden by default */
+    width: 80%;
+    max-width: 280px;
+    height: 100vh;
+    z-index: 1200;
+    transition: left 0.3s ease;
+  }
+
+  #sidebar.active {
+    left: 0;              /* show sidebar */
+  }
+
+  #sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1100;
+  }
+
+  #sidebar-overlay.active {
+    display: block;
+  }
+}
+
+
     </style>
 </head>
 <body>
@@ -876,6 +973,8 @@
                 <span id="sidebar-title">ARYANTA </span>
                 <span id="sidebar-premium-tag">AI</span>
             </div>
+            <div id="sidebar-overlay"></div>
+
             <div class="sidebar-main">
                 <button id="newChatButton">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -899,33 +998,40 @@
                 </button>
             </div>
         </div>
-        <div id="chat-interface">
-            <div id="chat-header">
-                <button id="menu-toggle-button" aria-label="Toggle Menu">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                </button>
-                
-                <button id="sidebar-toggle-button" aria-label="Toggle Sidebar">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-                </button>
-                <button id="tools-button" aria-label="Toggle Tools">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 7.14V16.8a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7.14a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1z"></path>
-                        <path d="M8 7.14V4.1a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3.04"></path>
-                    </svg>
+            <div id="chat-interface">
+                <div id="chat-header">
+                    <button id="menu-toggle-button" aria-label="Toggle Menu">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                     </button>
-                <div id="tools-dropdown">
-                    <button class="dropdown-item" id="toolsTempChatButton">Temporary Chat</button>
-                    <label class="setting-option">
-                        <span>Image Generation</span>
-                        <label class="switch"><input type="checkbox" id="imageGenToggle"><span class="slider"></span></label>
-                    </label>
-                    <label class="setting-option">
-                        <span>Student Mode</span>
-                        <label class="switch"><input type="checkbox" id="studentModeToggle"><span class="slider"></span></label>
-                    </label>
+                    
+                    <button id="sidebar-toggle-button" aria-label="Toggle Sidebar">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                    </button>
+                    <button id="tools-button" aria-label="Toggle Tools">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 7.14V16.8a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7.14a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1z"></path>
+                            <path d="M8 7.14V4.1a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v3.04"></path>
+                        </svg>
+                        </button>
+                    <div id="tools-dropdown">
+    <button class="dropdown-item" id="toolsTempChatButton">Temporary Chat</button>
+    
+    <label class="setting-option">
+        <span>Get Latest Info (Web)</span>
+        <label class="switch"><input type="checkbox" id="latestInfoToggle"><span class="slider"></span></label>
+    </label>
+
+    <label class="setting-option">
+        <span>Image Generation</span>
+        <label class="switch"><input type="checkbox" id="imageGenToggle"><span class="slider"></span></label>
+    </label>
+    <label class="setting-option">
+        <span>Student Mode</span>
+        <label class="switch"><input type="checkbox" id="studentModeToggle"><span class="slider"></span></label>
+    </label>
+</div>
+                        
                 </div>
-            </div>
 
             <img id="chat-logo-watermark" src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png" alt="Chat Watermark">
             <div class="chat-window" id="chatWindow"></div>
