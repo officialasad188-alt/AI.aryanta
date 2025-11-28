@@ -1,4 +1,4 @@
-// --- DOM Element Mappings (UI) ---
+
 const ui = {
     startScreen: document.getElementById('start-screen'),
     appContainer: document.getElementById('app-container'),
@@ -48,6 +48,9 @@ const ui = {
     disclaimerText: document.getElementById('disclaimer-text'),
     toolsButton: document.getElementById('tools-button'),
     toolsDropdown: document.getElementById('tools-dropdown'),
+    // --- NEW UI ELEMENTS ---
+    latestInfoToggle: document.getElementById('latestInfoToggle'),
+    // ----------------------
     imageGenToggle: document.getElementById('imageGenToggle'),
     studentModeToggle: document.getElementById('studentModeToggle'),
     toolsTempChatButton: document.getElementById('toolsTempChatButton'),
@@ -86,28 +89,34 @@ let state = {
     isSpeaking: false,
     isImageGenEnabled: false, 
     isStudentModeEnabled: false,
+    isLatestInfoEnabled: false, 
     isTempChatActive: false,
     autoAddMemories: false,
     userMemories: [], 
     apiLog: [],
-    // Canvas state removed
 };
 
-// --- Constants (Including API Keys - REMINDER: These should be secured in a real app) ---
+// --- Constants ---
 const API_KEYS = {
-     GROQ: [
-        "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",
-        "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",
-        "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",
-        "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",
-        "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",
-        "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"
+    GROQ: [
+        "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",
+        "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",
+        "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",
+        "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",
+        "null",
+        "null"
     ],
     UNSPLASH_ACCESS: [
         "n4cVM1wh-S3A7Mf3K6fWq-GmAyzZX1pNq08ekav62-w",
         "YHsgrLsYMSIgE43R_cVYAVP59TvMdrNsNxoMuO1dse4"
     ],
     WEATHER_API: "34f15915dea1476bb0454358250311",
+    // --- NEW KEYS ---
+    SERP_API: "5d5d618cde7dbcab47f66812f4acfd7c34c96710e58e115d0d4e91e4904944cd",
+    TAVILY_API: "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",
+    TAVILY_API: "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",
+    TAVILY_API: "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"
+    
 };
 
 const BASE_TYPE_SPEED = 30; 
@@ -139,7 +148,7 @@ const translations = {
 
 const restrictedWords = ['badword1', 'badword2', 'inappropriate'];
 let loadingTextInterval = null; 
-let selectionTimeout; // For the "Ask About" popup
+let selectionTimeout; 
 
 // --- Utility Functions ---
 
@@ -210,6 +219,30 @@ const stopTyping = () => {
     ui.sendButton.style.display = 'flex'; 
     ui.userInput.disabled = false;
 };
+
+function makeLinksClickable(text) {
+  const urlRegex = /((https?:\/\/|www\.)[^\s]+)/g;
+  return text.replace(urlRegex, function (url) {
+    const fullUrl = url.startsWith("http") ? url : "https://" + url;
+    return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8; text-decoration: underline; cursor:pointer;">${url}</a>`;
+  });
+}
+
+function cleanAiSources(text) {
+  return text
+    .replace(/^A classic puzzle\.?\s*/i, "")
+    .replace(/According to.*?(?=\n|$)/gi, "")
+    .replace(/\(Source.*?\)/gi, "")
+    .replace(/Source:\s*[^\n]+/gi, "")
+    // ❌ YEH LINE HATA DI GAYI:
+    // .replace(/https?:\/\/\S+/gi, "")
+    .replace(/\s+$/, "")
+    .replace(/to\s*$/i, ".")
+    .trim();
+}
+
+
+
 
 // --- Memory Management ---
 const analyzeAndStoreMemories = async (userText, aiText) => {
@@ -355,7 +388,7 @@ const displayAiMessage = async (answer, isHTML, pairId, forceNoAnimation = false
     requestsBtn.onclick = () => {
         const logContent = state.apiLog.length > 0 ? 
             state.apiLog.map(log => `<div><strong>${log.title}</strong><pre>${log.content}</pre></div>`).join('') : 
-            '<div><strong>Log</strong><pre>No API call details were logged for this response (e.g., it was a local greeting or time check).</pre></div>';
+            '<div><strong>Log</strong><pre>No API call details were logged for this response.</pre></div>';
         
         ui.apiLogModalContent.innerHTML = logContent;
         ui.apiLogModal.style.display = 'flex';
@@ -378,17 +411,83 @@ const displayAiMessage = async (answer, isHTML, pairId, forceNoAnimation = false
     aiMsg.appendChild(createSpeakButton(cleanTextForSpeech)); 
     pairContainer.appendChild(aiMsg); 
     
-    if (isHTML) { 
-        answerContent.innerHTML = answer; 
-        stopTyping(); 
+    // ✅ CLICKABLE LINKS PATCH
+let outputText = answer || "";
+
+// 🔹 Source clean (only if function exists)
+if (typeof cleanAiSources === "function") {
+    try {
+        outputText = cleanAiSources(outputText);
+    } catch (e) {
+        console.warn("cleanAiSources failed", e);
+    }
+}
+
+// 🔹 Confidence booster (optional safe)
+if (typeof makeAnswerConfident === "function") {
+    try {
+        outputText = makeAnswerConfident(outputText);
+    } catch (e) {
+        console.warn("makeAnswerConfident failed", e);
+    }
+}
+
+// 🔹 Clean + Confidence + Clickable (FINAL PIPELINE)
+
+let finalText = outputText;
+
+// Clean sources (only if function exists)
+if (typeof cleanAiSources === "function") {
+    try {
+        finalText = cleanAiSources(finalText);
+    } catch (e) {}
+}
+
+// Make answer confident (only if function exists)
+if (typeof makeAnswerConfident === "function") {
+    try {
+        finalText = makeAnswerConfident(finalText);
+    } catch (e) {}
+}
+
+// Always make links clickable safely
+const clickable =
+    typeof makeLinksClickable === "function"
+        ? makeLinksClickable(finalText)
+        : finalText;
+
+if (isHTML) { 
+  answerContent.innerHTML = `
+  <span style="font-size:11px;color:#8ab4f8;">Verified Answer</span><br><br>
+  ${clickable}
+`;
+
+answerContent.querySelectorAll('a').forEach(a => {
+  a.style.pointerEvents = 'auto';
+});
+
+
+    stopTyping(); 
+
+
+} else { 
+    if (state.isTypingAnimationEnabled && !forceNoAnimation) { 
+        try {
+            await typewriterEffect(
+                answerContent,
+                clickable.replace(/<[^>]*>/g, '')
+            );
+        } catch (e) {
+            console.warn("Typing failed, fallback to direct render", e);
+            answerContent.innerHTML = clickable;
+        }
     } else { 
-        if (state.isTypingAnimationEnabled && !forceNoAnimation) { 
-            await typewriterEffect(answerContent, answer); 
-        } else { 
-            answerContent.textContent = answer; 
-            stopTyping(); 
-        } 
+        answerContent.innerHTML = clickable; 
+        stopTyping(); 
     } 
+}
+
+
     ui.chatWindow.scrollTop = ui.chatWindow.scrollHeight; 
 };
 
@@ -412,6 +511,8 @@ const showLoadingIndicator = (messageType = 'Thinking') => {
         messages = ['Accessing location', 'Getting coordinates'];
     } else if (messageType === 'Getting weather') {
          messages = ['Checking weather', 'Fetching forecast'];
+    } else if (messageType === 'Searching web') {
+        messages = ['Browsing the web', 'Fetching latest info', 'Analyzing results'];
     } else { 
         messages = ['Thinking', 'Processing', 'Formulating response'];
     }
@@ -442,10 +543,81 @@ const hideLoadingIndicator = () => {
 
 // --- API Fetching Functions ---
 
+// --- NEW FUNCTION: Fetch Web Search Data ---
+async function fetchWebContext(query) {
+    const tavilyKey = API_KEYS.TAVILY_API;
+    const serpKey = API_KEYS.SERP_API;
+
+    // Try Tavily First (Better for LLM context)
+    if (tavilyKey) {
+        state.apiLog.push({ title: 'Request to Tavily Search', content: `Query: ${query}` });
+        try {
+            const response = await fetch("https://api.tavily.com/search", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    api_key: tavilyKey,
+                    query: query,
+                    search_depth: "basic",
+                    include_answer: true,
+                    max_results: 3
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                state.apiLog.push({ title: 'Response from Tavily', content: JSON.stringify(data, null, 2) });
+                
+                let context = "Latest Web Information:\n";
+                if(data.answer) context += `Summary: ${data.answer}\n`;
+                data.results.forEach((res, i) => {
+                    context += `Source ${i+1}: ${res.content} (${res.url})\n`;
+                });
+                return context;
+            } else {
+                console.warn("Tavily Error", response.status);
+                state.apiLog.push({ title: 'Tavily Error', content: `Status: ${response.status}` });
+            }
+        } catch (e) {
+            console.error("Tavily Fetch Error", e);
+            state.apiLog.push({ title: 'Tavily Fetch Error', content: e.message });
+        }
+    }
+
+    // Fallback to SerpApi (Note: Client-side CORS might be an issue without proxy)
+    // We will attempt a direct fetch, but usually this requires a backend.
+    if (serpKey) {
+        state.apiLog.push({ title: 'Request to SerpApi', content: `Query: ${query}` });
+        // Using a CORS proxy approach or direct if enabled on key (rare)
+        // For this demo code, we format the URL. 
+        const url = `https://serpapi.com/search.json?q=${encodeURIComponent(query)}&api_key=${serpKey}&num=3`;
+        
+        try {
+            const response = await fetch(url); 
+            if (response.ok) {
+                 const data = await response.json();
+                 state.apiLog.push({ title: 'Response from SerpApi', content: JSON.stringify(data, null, 2) });
+                 
+                 let context = "Latest Google Search Results:\n";
+                 if (data.organic_results) {
+                     data.organic_results.forEach((res, i) => {
+                         context += `Result ${i+1}: ${res.title} - ${res.snippet}\n`;
+                     });
+                 }
+                 return context;
+            }
+        } catch (e) {
+             console.error("SerpApi Fetch Error", e);
+             state.apiLog.push({ title: 'SerpApi Fetch Error', content: e.message });
+        }
+    }
+
+    return null;
+}
+
 async function fetchWeatherAnswer(query) {
     const API_KEY = API_KEYS.WEATHER_API;
     
-    // Note: The original code contained a direct key, which is kept here for function parity.
     if (!API_KEY) { 
         console.error("WeatherAPI key is missing!");
         return null;
@@ -547,7 +719,7 @@ const fetchTextAnswer = async (prompt, lang, systemPrompt = ENGLISH_PROMPT) => {
     return null;
 };
 
-// --- NEW HELPER FUNCTION: Get Visual Topic ---
+// --- Helper: Get Visual Topic ---
 async function getVisualTopic(userText) {
     if (!state.isImageGenEnabled) return null;
     
@@ -562,7 +734,6 @@ async function getVisualTopic(userText) {
         if (result && result.toUpperCase() !== 'NULL' && !result.includes(' ')) {
              return result.replace(/[^a-zA-Z0-9 ]/g, '');
         } else if (result && result.toUpperCase() !== 'NULL') {
-             // Allow short phrases if they are clean
              return result.replace(/[^a-zA-Z0-9 ]/g, '');
         }
         return null;
@@ -573,7 +744,7 @@ async function getVisualTopic(userText) {
 }
 
 
-// --- MODIFIED FUNCTION: Fetch 3 Images ---
+// --- Helper: Fetch 3 Images ---
 async function fetchUnsplashImages(prompt) {
     const unsplashKeys = API_KEYS.UNSPLASH_ACCESS;
     if (!unsplashKeys || unsplashKeys.length === 0 || unsplashKeys.every(k => k.startsWith("YOUR_"))) { console.error("Unsplash Access Keys are missing or placeholders."); return ""; }
@@ -582,7 +753,6 @@ async function fetchUnsplashImages(prompt) {
 
     for (const key of unsplashKeys) {
         if (!key || key.startsWith("YOUR_")) continue;
-        // Request 3 images
         const API_URL = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(prompt)}&per_page=3&orientation=landscape`;
         try {
             const response = await fetch(API_URL, {
@@ -602,7 +772,7 @@ async function fetchUnsplashImages(prompt) {
                     galleryHTML += `</div>`;
                     return galleryHTML;
                 } else {
-                    return ""; // No images found, return empty string
+                    return ""; 
                 }
             }
             console.error(`Unsplash key [${key.substring(0, 7)}...] failed with status: ${response.status}`);
@@ -877,8 +1047,9 @@ const generateAndDisplayResponse = async (messageText, pairId, userMessageConten
                 
                 const weatherAnswer = await fetchWeatherAnswer(`${latitude},${longitude}`);
                 hideLoadingIndicator();
-                
-                let finalAnswer;
+
+                // --- FIX: SCOPE CORRECTION START ---
+                let finalAnswer = ""; // Initialize here
                 if (weatherAnswer) {
                     finalAnswer = profanityFilter(weatherAnswer);
                 } else {
@@ -889,6 +1060,9 @@ const generateAndDisplayResponse = async (messageText, pairId, userMessageConten
                     if (state.isStudentModeEnabled) finalSystemPrompt = STUDENT_MODE_PROMPT + finalSystemPrompt;
                     finalAnswer = await fetchTextAnswer(locationPrompt, responseLang, finalSystemPrompt);
                 }
+                
+                if (!finalAnswer) finalAnswer = "Sorry, I couldn't process your location request.";
+                // --- FIX: SCOPE CORRECTION END ---
                 
                 displayAiMessage(finalAnswer, false, pairId);
                 await saveConversation(userMessageContent, finalAnswer, false, pairId, isFirstMessage, messageText);
@@ -923,7 +1097,10 @@ const generateAndDisplayResponse = async (messageText, pairId, userMessageConten
     
     const isWeatherRequest = locationKeywords.some(k => lowerCaseMessage.includes(k));
 
-    showLoadingIndicator(isWeatherRequest ? 'Getting weather' : 'Thinking');
+    // --- DETERMINE LOADING STATE ---
+    if (isWeatherRequest) showLoadingIndicator('Getting weather');
+    else if (state.isLatestInfoEnabled) showLoadingIndicator('Searching web');
+    else showLoadingIndicator('Thinking');
 
     let finalSystemPrompt = ENGLISH_PROMPT;
     if (responseLang === 'hinglish') {
@@ -949,11 +1126,22 @@ const generateAndDisplayResponse = async (messageText, pairId, userMessageConten
             textAnswerPromise = Promise.resolve(`The current time is ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`);
         } else if (/\b(date|taarikh|saal|year)\b/.test(lowerCaseMessage)) {
             textAnswerPromise = Promise.resolve(`Today is ${new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`);
-        } else {
+        } 
+        // --- NEW LOGIC: SEARCH WEB IF ENABLED ---
+        else if (state.isLatestInfoEnabled) {
+            const searchContext = await fetchWebContext(messageText);
+            
+            if (searchContext) {
+                 finalSystemPrompt += `\n\n${searchContext}\n\nINSTRUCTION: Answer the user's question using the 'Latest Web Information' or 'Search Results' provided above. Cite the source if possible.`;
+            }
+            // Proceed to Groq with the augmented prompt
+            textAnswerPromise = fetchTextAnswer(messageText, responseLang, finalSystemPrompt);
+        }
+        // ----------------------------------------
+        else {
             const localAns = localKnowledgeBase[lowerCaseMessage];
             if (localAns) {
                  textAnswerPromise = Promise.resolve(localAns);
-                 // Don't fetch images for local greetings
                  visualTopicPromise = Promise.resolve(null);
             } else {
                 const mathRegex = /^[ \d()+\-*/.^]+$/;
@@ -975,38 +1163,29 @@ const generateAndDisplayResponse = async (messageText, pairId, userMessageConten
         
         // If a topic was detected, fetch 3 images and append them
         if (visualTopic && state.isImageGenEnabled) {
-          // --- FINAL CLEAN FORMAT: Description + Images only ---
-if (visualTopic && state.isImageGenEnabled) {
+            // Force description + images
+            const descPrompt = `
+                Describe ${visualTopic} in 60–80 words.
+                Do NOT mention images.
+                Do NOT tell the user to search.
+                Do NOT say "here is your image".
+                ONLY describe the animal/object itself.
+            `;
+            const desc = await fetchTextAnswer(descPrompt, 'en', ENGLISH_PROMPT);
+            const imgsHTML = await fetchUnsplashImages(visualTopic);
 
-    // 1. FORCE a clean 60–80 word description ONLY
-    const descPrompt = `
-        Describe ${visualTopic} in 60–80 words.
-        Do NOT mention images.
-        Do NOT tell the user to search.
-        Do NOT say "here is your image".
-        ONLY describe the animal/object itself.
-    `;
-    const desc = await fetchTextAnswer(descPrompt, 'en', ENGLISH_PROMPT);
+            aiAnswer = `
+                <div class="message-description">${desc}</div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+                    ${imgsHTML}
+                </div>
+            `;
+            isHTML = true;
 
-    // 2. FETCH Unsplash images
-    const imgsHTML = await fetchUnsplashImages(visualTopic);
-
-    // 3. FINAL message (description + images)
-    aiAnswer = `
-        <div class="message-description">${desc}</div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-            ${imgsHTML}
-        </div>
-    `;
-
-    isHTML = true;
-
-    hideLoadingIndicator();
-    displayAiMessage(aiAnswer, true, pairId);
-    await saveConversation(userMessageContent, aiAnswer, true, pairId, isFirstMessage, messageText);
-    return;
-}
-
+            hideLoadingIndicator();
+            displayAiMessage(aiAnswer, true, pairId);
+            await saveConversation(userMessageContent, aiAnswer, true, pairId, isFirstMessage, messageText);
+            return;
         }
 
     } catch (error) {
@@ -1015,14 +1194,6 @@ if (visualTopic && state.isImageGenEnabled) {
     } finally {
         hideLoadingIndicator();
     }
-    
-    // If we appended images (HTML), we must trust the content is safe (sanitized inputs elsewhere)
-    // but the text part needs filtering. Since we combined them, filter text first if needed, 
-    // but here we filter the whole string. Be careful with HTML tags.
-    // For safety, we should profanity filter only the TEXT part, but for simplicity here we assume 
-    // AI output is relatively safe or use basic filter.
-    
-    // Simple logic: if isHTML is true (due to images), we assume we want to render it as innerHTML.
     
     const finalAnswer = (aiAnswer && aiAnswer !== '') 
         ? aiAnswer 
@@ -1249,6 +1420,7 @@ const generateAiResponseForLiveMode = async (text) => {
     const localKnowledgeBase = (translations[responseLang] || translations.en).localKnowledge; 
     let aiAnswer = localKnowledgeBase[lowerCaseMessage]; 
     if (!aiAnswer) { 
+        // Note: We don't use web search for live mode for speed
         aiAnswer = await fetchTextAnswer(`Answer this concisely for a voice assistant: "${text}"`, responseLang); 
     } 
     return stripHtml(aiAnswer); 
@@ -1274,6 +1446,33 @@ const closeLiveMode = () => {
     setTimeout(() => { ui.liveModeOverlay.style.display = 'none'; }, 400); 
 };
 
+const sidebar = document.getElementById("sidebar");
+const sidebarOverlay = document.getElementById("sidebar-overlay");
+const menuToggleBtn = document.getElementById("menu-toggle-button");
+
+// Open sidebar
+if (menuToggleBtn) {
+  menuToggleBtn.addEventListener("click", () => {
+    sidebar.classList.add("active");
+    sidebarOverlay.classList.add("active");
+  });
+}
+
+// Close sidebar by tapping outside
+if (sidebarOverlay) {
+  sidebarOverlay.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    sidebarOverlay.classList.remove("active");
+  });
+}
+
+// Auto-close when chat starts (mobile UX)
+if (ui.sendButton) {
+  ui.sendButton.addEventListener("click", () => {
+    sidebar.classList.remove("active");
+    sidebarOverlay.classList.remove("active");
+  });
+}
 
 // --- Initialization and Event Listeners ---
 
@@ -1297,6 +1496,11 @@ document.addEventListener('DOMContentLoaded', () => {
     state.isStudentModeEnabled = localStorage.getItem('studentModeEnabled') === 'true';
     ui.studentModeToggle.checked = state.isStudentModeEnabled;
     
+    // --- NEW: LATEST INFO TOGGLE INIT ---
+    state.isLatestInfoEnabled = localStorage.getItem('latestInfoEnabled') === 'true';
+    if(ui.latestInfoToggle) ui.latestInfoToggle.checked = state.isLatestInfoEnabled;
+    // ------------------------------------
+
     state.autoAddMemories = localStorage.getItem('autoAddMemories') === 'true';
     ui.autoAddMemoryToggle.checked = state.autoAddMemories;
     loadMemories(); 
@@ -1373,6 +1577,15 @@ document.addEventListener('DOMContentLoaded', () => {
         state.isStudentModeEnabled = e.target.checked;
         localStorage.setItem('studentModeEnabled', state.isStudentModeEnabled);
     });
+
+    // --- NEW: LATEST INFO EVENT LISTENER ---
+    if(ui.latestInfoToggle) {
+        ui.latestInfoToggle.addEventListener('change', (e) => {
+            state.isLatestInfoEnabled = e.target.checked;
+            localStorage.setItem('latestInfoEnabled', state.isLatestInfoEnabled);
+        });
+    }
+    // ---------------------------------------
 
     ui.autoAddMemoryToggle.addEventListener('change', (e) => {
         state.autoAddMemories = e.target.checked;
@@ -1462,7 +1675,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.querySelectorAll('#persona-options .data-option-btn').forEach(btn => { 
         btn.addEventListener('click', () => { 
-            state.persona = btn.dataset.persona; // Note: Original code uses `btn.dataset.style` here, correcting to `btn.dataset.persona`
+            state.persona = btn.dataset.persona; 
             updateSettingsUI(); 
         }); 
     }); 
@@ -1509,7 +1722,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.apiLogModalXClose.addEventListener('click', () => { ui.apiLogModal.style.display = 'none'; });
     ui.apiLogModal.addEventListener('click', (e) => { if (e.target === ui.apiLogModal) { ui.apiLogModal.style.display = 'none'; } });
 
-    // Canvas Event Listeners REMOVED
 
     ui.chatWindow.addEventListener('click', async (e) => {
         if (e.target.tagName === 'IMG' && e.target.closest('.message-pair')) {
@@ -1667,20 +1879,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ui.askAboutPopup.style.display = 'none';
         }
     });
-    // ---- AUTO REMOVE Ask About popup when scrolling ----
-ui.chatWindow.addEventListener('scroll', () => {
 
-    // Hide popup instantly
-    ui.askAboutPopup.style.display = 'none';
-
-    // Remove text selection
-    const sel = window.getSelection();
-    if (sel && sel.removeAllRanges) {
-        sel.removeAllRanges();
-    }
-});
-
-        
+    ui.chatWindow.addEventListener('scroll', () => {
+        ui.askAboutPopup.style.display = 'none';
+        const sel = window.getSelection();
+        if (sel && sel.removeAllRanges) {
+            sel.removeAllRanges();
+        }
+    });
        
     // --- Speech Recognition/Live Mode Listeners ---
     if (SpeechRecognition) {
@@ -1719,5 +1925,4 @@ ui.chatWindow.addEventListener('scroll', () => {
             }, 1500); 
         };
     }
-
 });
