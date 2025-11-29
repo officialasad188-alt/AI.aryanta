@@ -220,26 +220,17 @@ const stopTyping = () => {
     ui.userInput.disabled = false;
 };
 
-function makeLinksClickable(text) {
-  const urlRegex = /((https?:\/\/|www\.)[^\s]+)/g;
-  return text.replace(urlRegex, function (url) {
-    const fullUrl = url.startsWith("http") ? url : "https://" + url;
-    return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer" style="color:#8ab4f8; text-decoration: underline; cursor:pointer;">${url}</a>`;
-  });
-}
+
 
 function cleanAiSources(text) {
   return text
     .replace(/^A classic puzzle\.?\s*/i, "")
-    .replace(/According to.*?(?=\n|$)/gi, "")
     .replace(/\(Source.*?\)/gi, "")
     .replace(/Source:\s*[^\n]+/gi, "")
-    // ❌ YEH LINE HATA DI GAYI:
-    // .replace(/https?:\/\/\S+/gi, "")
-    .replace(/\s+$/, "")
     .replace(/to\s*$/i, ".")
     .trim();
 }
+
 
 
 
@@ -365,6 +356,7 @@ const displayUserMessage = (content, pairId) => {
     ui.chatWindow.scrollTop = ui.chatWindow.scrollHeight; 
 };
 
+
 const displayAiMessage = async (answer, isHTML, pairId, forceNoAnimation = false) => { 
     const pairContainer = ui.chatWindow.querySelector(`.message-pair[data-pair-id="${pairId}"]`); 
     if (!pairContainer) return; 
@@ -417,7 +409,7 @@ let outputText = answer || "";
 // 🔹 Source clean (only if function exists)
 if (typeof cleanAiSources === "function") {
     try {
-        outputText = cleanAiSources(outputText);
+        finalText = cleanAiSources(finalText);
     } catch (e) {
         console.warn("cleanAiSources failed", e);
     }
@@ -437,11 +429,7 @@ if (typeof makeAnswerConfident === "function") {
 let finalText = outputText;
 
 // Clean sources (only if function exists)
-if (typeof cleanAiSources === "function") {
-    try {
-        finalText = cleanAiSources(finalText);
-    } catch (e) {}
-}
+
 
 // Make answer confident (only if function exists)
 if (typeof makeAnswerConfident === "function") {
@@ -450,11 +438,8 @@ if (typeof makeAnswerConfident === "function") {
     } catch (e) {}
 }
 
-// Always make links clickable safely
-const clickable =
-    typeof makeLinksClickable === "function"
-        ? makeLinksClickable(finalText)
-        : finalText;
+const clickable = finalText;   // disable clickable links
+
 
 if (isHTML) { 
   answerContent.innerHTML = `
