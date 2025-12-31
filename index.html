@@ -28,8 +28,6 @@
             --grad-gift: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
             --grad-pass: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
             --grad-gold: linear-gradient(135deg, #FFD700 0%, #B8860B 100%);
-            --grad-danger: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-            --grad-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
         [data-theme="light"] {
@@ -94,7 +92,7 @@
         .full { grid-column: span 2; display: flex; justify-content: space-between; align-items: center; }
         .section-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin: 25px 0 10px 5px; }
 
-        /* --- VISUAL CARDS --- */
+        /* --- VISUAL CARDS & MINIMAL LIST --- */
         .visual-card { border-radius: 20px; padding: 25px; margin-bottom: 20px; position: relative; color: white; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .visual-card.atm { background: linear-gradient(135deg, #1c1c1c 0%, #3a3a3a 100%); border: 1px solid rgba(255,255,255,0.1); }
         .visual-card.gift { background: var(--grad-gift); }
@@ -102,7 +100,14 @@
         [data-theme="dark"] .visual-card.passbook { color: #000; }
         .visual-card.aadhar { background: rgba(255,255,255,0.95); color: #000; }
         .chip { width: 45px; height: 34px; background: linear-gradient(135deg, #e0aa3e 0%, #b88a2d 100%); border-radius: 6px; margin-bottom: 15px; }
-        .card-del { position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.2); border: none; color: white; cursor: pointer; }
+        
+        .vault-item-minimal {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--glass-bg); padding: 16px; border-radius: 16px;
+            border: 1px solid var(--glass-border); margin-bottom: 10px; cursor: pointer;
+        }
+        .vault-item-minimal:active { transform: scale(0.98); }
+        .vault-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: var(--glass-border); margin-right: 15px; }
 
         /* --- SAVINGS & EXPENSE SPECIFIC --- */
         .gold-card { background: var(--grad-gold); color: black; text-align: center; }
@@ -120,7 +125,7 @@
 
         /* --- MODALS --- */
         .modal-overlay { display: none; position: fixed; inset: 0; z-index: 5000; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); align-items: flex-end; justify-content: center; }
-        .modal-sheet { background: var(--bg-body); width: 100%; max-width: 500px; border-radius: 30px 30px 0 0; padding: 30px; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); animation: slideUp 0.3s ease; max-height: 85vh; overflow-y: auto; border: 1px solid var(--glass-border); }
+        .modal-sheet { background: var(--bg-body); width: 100%; max-width: 500px; border-radius: 30px 30px 0 0; padding: 30px; box-shadow: 0 -10px 40px rgba(0,0,0,0.5); animation: slideUp 0.3s ease; max-height: 85vh; overflow-y: auto; border: 1px solid var(--glass-border); display: flex; flex-direction: column; }
         .confirm-box { background: var(--bg-body); padding: 25px; border-radius: 20px; text-align: center; max-width: 350px; border: 1px solid var(--glass-border); animation: zoomIn 0.2s ease; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -132,6 +137,14 @@
         .btn-danger { background: var(--danger); color: #fff; }
         .btn-outline { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); }
 
+        /* --- CUSTOM SELECT --- */
+        .custom-select-wrap { position: relative; margin-bottom: 12px; }
+        .custom-select-trigger { background: var(--glass-bg); padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .custom-select-options { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-body); border: 1px solid var(--glass-border); border-radius: 12px; z-index: 10; margin-top: 5px; max-height: 200px; overflow-y: auto; box-shadow: var(--shadow-card); }
+        .custom-option { padding: 12px 14px; cursor: pointer; border-bottom: 1px solid var(--glass-border); font-size: 14px; }
+        .custom-option:hover { background: var(--primary-dim); color: var(--primary); }
+        .custom-select-wrap.open .custom-select-options { display: block; }
+
         /* --- SETTINGS TOGGLES --- */
         .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--glass-border); }
         .toggle { appearance: none; width: 44px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; }
@@ -142,11 +155,33 @@
         .theme-opt { flex: 1; padding: 15px; border-radius: 12px; background: var(--glass-bg); text-align: center; font-size: 12px; font-weight: 600; cursor: pointer; }
         .theme-opt.active { background: var(--primary-dim); color: var(--primary); border: 1px solid var(--primary); }
         
+        /* --- PIN PAD --- */
+        #pin-screen { display: none; position: fixed; inset: 0; background: var(--bg-body); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+        .pin-dots { display: flex; gap: 15px; margin-bottom: 40px; }
+        .pin-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--text-muted); transition: 0.2s; }
+        .pin-dot.filled { background: var(--primary); border-color: var(--primary); }
+        .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 280px; }
+        .pin-key { width: 70px; height: 70px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main); font-size: 24px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .pin-key:active { background: var(--primary-dim); transform: scale(0.9); }
+        
         /* --- HELPERS --- */
-        .dash-avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--primary); padding: 3px; object-fit: cover; margin: 0 auto 10px auto; display: block; }
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-main); color: var(--bg-body); padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 13px; opacity: 0; transition: 0.4s; z-index: 6000; }
+        .dash-avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--primary); padding: 3px; object-fit: cover; margin: 0 auto 10px auto; display: block; cursor: pointer; }
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-main); color: var(--bg-body); padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 13px; opacity: 0; transition: 0.4s; z-index: 7000; white-space: nowrap; }
         #toast.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
         .tag-row { display: flex; gap: 8px; margin-bottom: 8px; }
+
+        /* --- FOOTER --- */
+        .app-footer {
+            margin-top: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            opacity: 0.5; gap: 8px; margin-bottom: 20px;
+        }
+        .footer-logo { width: 24px; height: 24px; border-radius: 50%; }
+        .footer-text { font-size: 10px; letter-spacing: 1.5px; font-weight: 700; text-transform: uppercase; }
+
+        /* --- FILTER BARS --- */
+        .filter-bar {
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -156,6 +191,15 @@
         <img id="splash-logo" src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png">
     </div>
 
+    <div id="pin-screen">
+        <h2 id="pin-title" style="margin-bottom:10px;">Enter PIN</h2>
+        <p id="pin-desc" style="color:var(--text-muted); margin-bottom:30px; font-size:14px;">Please enter security PIN</p>
+        <div class="pin-dots" id="pin-dots"></div>
+        <div class="pin-grid" id="pin-pad">
+            </div>
+        <button id="cancel-pin" style="margin-top:30px; background:none; border:none; color:var(--text-muted); font-size:14px; display:none;">Cancel</button>
+    </div>
+
     <div id="toast">Welcome Back</div>
 
     <div id="img-viewer" style="display:none; position:fixed; inset:0; z-index:6000; background:rgba(0,0,0,0.95); justify-content:center; align-items:center;">
@@ -163,20 +207,31 @@
         <img id="viewer-img" style="max-width:95%; max-height:80%; border-radius:12px;">
     </div>
 
+    <div id="photo-choice-modal" class="modal-overlay">
+        <div class="modal-sheet" style="height:auto;">
+            <h3 style="margin:0 0 20px 0; text-align:center;">Change Profile Picture</h3>
+            <button class="action-btn btn-outline" id="btn-choice-cam">📷 Take Photo</button>
+            <button class="action-btn btn-outline" id="btn-choice-alb">🖼 Select from Album</button>
+            <button class="action-btn btn-danger" id="btn-choice-rem">🗑 Remove Photo</button>
+            <button class="action-btn" style="margin-top:20px; background:transparent; color:var(--text-muted);" onclick="document.getElementById('photo-choice-modal').style.display='none'">Cancel</button>
+        </div>
+    </div>
+    <input type="file" id="pic-upload-cam" hidden accept="image/*" capture="environment">
+    <input type="file" id="pic-upload-alb" hidden accept="image/*">
+
     <div id="add-modal" class="modal-overlay">
         <div class="modal-sheet">
-            <h2 style="margin:0 0 20px 0;">Add to Vault</h2>
+            <h2 style="margin:0 0 20px 0;" id="vault-modal-title">Add to Vault</h2>
             <div style="margin-bottom:15px;">
                 <label class="section-label">Document Type</label>
-                <select id="doc-type-select" class="modern-input">
-                    <option value="" disabled selected>Select Category</option>
-                    <option value="Gift Card">Gift Card</option>
-                    <option value="ATM / Debit Card">ATM / Debit Card</option>
-                    <option value="Pass Book">Pass Book</option>
-                    <option value="Aadhar Card">Aadhar Card</option>
-                    <option value="Certificate">Certificate</option>
-                    <option value="Other">Other</option>
-                </select>
+                <div class="custom-select-wrap" id="doc-type-wrap">
+                    <div class="custom-select-trigger" id="doc-type-trigger">
+                        <span id="doc-type-text">Select Category</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="custom-select-options" id="doc-type-options">
+                        </div>
+                </div>
             </div>
             <div id="dynamic-fields"></div>
             <div style="margin-top:20px;">
@@ -188,6 +243,20 @@
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <button id="cancel-doc-btn" class="action-btn btn-outline">Cancel</button>
                 <button id="save-doc-btn" class="action-btn btn-primary">Save Securely</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="vault-detail-modal" class="modal-overlay">
+        <div class="modal-sheet" style="max-height:90vh;">
+            <div style="display:flex; justify-content:flex-end;">
+                <button id="close-detail" style="background:none; border:none; font-size:24px; color:var(--text-muted);">&times;</button>
+            </div>
+            <div id="detail-visual-container"></div>
+            <div id="detail-info-container" style="margin-top:20px; padding-top:20px; border-top:1px solid var(--glass-border);"></div>
+            <div style="display:flex; gap:10px; margin-top:30px;">
+                <button id="btn-detail-edit" class="action-btn btn-primary">Edit</button>
+                <button id="btn-detail-del" class="action-btn btn-danger">Delete</button>
             </div>
         </div>
     </div>
@@ -222,8 +291,8 @@
     <div id="confirm-modal" class="modal-overlay" style="align-items:center;">
         <div class="confirm-box">
             <div style="font-size:40px; margin-bottom:10px;">🔒</div>
-            <h3 style="margin:0 0 10px 0;">Confirm Deposit</h3>
-            <p id="confirm-msg" style="color:var(--text-muted); font-size:14px; line-height:1.5;">You are adding money.</p>
+            <h3 style="margin:0 0 10px 0;" id="confirm-head">Confirm</h3>
+            <p id="confirm-msg" style="color:var(--text-muted); font-size:14px; line-height:1.5;">Are you sure?</p>
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <button id="confirm-no" class="action-btn btn-outline">Cancel</button>
                 <button id="confirm-yes" class="action-btn btn-success">Confirm</button>
@@ -272,12 +341,15 @@
             </button>
         </div>
 
-        <div style="text-align:center; margin-top:40px; opacity:0.3; font-size:11px; letter-spacing:2px; font-weight:700;">POWERED BY ARYANTA</div>
+        <div class="app-footer">
+            <img src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png" class="footer-logo">
+            <div class="footer-text">POWERED BY ARYANTA</div>
+        </div>
     </div>
 
     <div id="profile-screen" class="app-screen">
         <div style="display:flex; align-items:center; margin-bottom:20px;">
-            <button id="back-from-profile" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
+            <button id="back-from-profile" class="back-btn" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
             <h2 style="margin-left:15px;">Digital ID</h2>
         </div>
         <div class="premium-card">
@@ -288,26 +360,37 @@
             <div style="text-align:center; margin-bottom:25px; position:relative;">
                 <img id="profile-pic-detail" class="dash-avatar" style="width:100px; height:100px;" src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png">
                 <div id="camera-overlay" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:100px; height:100px; border-radius:50%; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; color:white; font-size:24px; cursor:pointer;">📷</div>
-                <input type="file" id="pic-upload" hidden>
             </div>
             <div id="profile-fields"></div>
         </div>
     </div>
 
     <div id="data-screen" class="app-screen">
-        <div style="display:flex; align-items:center; margin-bottom:20px; justify-content:space-between;">
+        <div style="display:flex; align-items:center; margin-bottom:10px; justify-content:space-between;">
             <div style="display:flex; align-items:center;">
-                <button id="back-from-data" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
+                <button id="back-from-data" class="back-btn" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
                 <h2 style="margin-left:15px;">Vault</h2>
             </div>
             <button id="add-data-btn" style="background:var(--primary); color:black; border:none; width:40px; height:40px; border-radius:12px; font-size:24px; font-weight:bold; cursor:pointer;">+</button>
         </div>
+        
+        <div class="filter-bar">
+            <div class="custom-select-wrap" id="vault-filter-wrap">
+                <div class="custom-select-trigger" id="vault-filter-trigger" style="padding:10px; font-size:13px;">
+                    <span id="vault-filter-text">All Items</span>
+                    <span>▼</span>
+                </div>
+                <div class="custom-select-options" id="vault-filter-options">
+                    </div>
+            </div>
+        </div>
+
         <div id="data-list"></div>
     </div>
 
     <div id="savings-screen" class="app-screen">
         <div style="display:flex; align-items:center; margin-bottom:20px;">
-            <button id="back-from-savings" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
+            <button id="back-from-savings" class="back-btn" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
             <h2 style="margin-left:15px;">My Savings</h2>
         </div>
 
@@ -334,9 +417,23 @@
     </div>
 
     <div id="expenditure-screen" class="app-screen">
-        <div style="display:flex; align-items:center; margin-bottom:20px;">
-            <button id="back-from-exp" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
-            <h2 style="margin-left:15px;">Finance Manager</h2>
+        <div style="display:flex; align-items:center; margin-bottom:10px;">
+            <button id="back-from-exp" class="back-btn" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
+            <h2 style="margin-left:15px;">Finance</h2>
+        </div>
+        
+        <div class="filter-bar">
+             <div class="custom-select-wrap" id="exp-filter-wrap">
+                <div class="custom-select-trigger" id="exp-filter-trigger" style="padding:10px; font-size:13px;">
+                    <span id="exp-filter-text">Today</span>
+                    <span>▼</span>
+                </div>
+                <div class="custom-select-options" id="exp-filter-options">
+                    <div class="custom-option" data-val="today">Today</div>
+                    <div class="custom-option" data-val="week">This Week</div>
+                    <div class="custom-option" data-val="month">This Month</div>
+                </div>
+            </div>
         </div>
 
         <div class="premium-card">
@@ -345,19 +442,9 @@
                 <div style="font-size:40px; font-weight:800; margin-top:5px; color:var(--primary);" id="exp-total-balance">₹0</div>
             </div>
             
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-                <div class="stat-box">
-                    <div class="stat-lbl">Income (Month)</div>
-                    <div class="stat-val" style="color:var(--success);" id="stat-inc-month">₹0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-lbl">Expense (Month)</div>
-                    <div class="stat-val" style="color:var(--danger);" id="stat-exp-month">₹0</div>
-                </div>
-            </div>
-            <div class="stat-box" style="margin-bottom:0;">
-                <div class="stat-lbl">Total Expense Today</div>
-                <div class="stat-val" id="stat-exp-today">₹0</div>
+            <div class="stat-box" style="margin-bottom:10px;">
+                <div class="stat-lbl" id="stat-lbl-dynamic">Total Used Today</div>
+                <div class="stat-val" style="color:var(--danger);" id="stat-exp-dynamic">₹0</div>
             </div>
         </div>
 
@@ -374,7 +461,7 @@
 
     <div id="settings-screen" class="app-screen">
         <div style="display:flex; align-items:center; margin-bottom:20px;">
-            <button id="back-from-settings" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
+            <button id="back-from-settings" class="back-btn" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
             <h2 style="margin-left:15px;">Preferences</h2>
         </div>
 
@@ -384,6 +471,14 @@
                 <div class="theme-opt" id="theme-light" onclick="setTheme('light')">☀️ Light</div>
                 <div class="theme-opt" id="theme-dark" onclick="setTheme('dark')">🌙 Dark</div>
                 <div class="theme-opt" id="theme-system" onclick="setTheme('system')">🖥 System</div>
+            </div>
+        </div>
+
+        <div class="section-label">Security</div>
+        <div class="premium-card">
+            <div class="setting-row"><span>App Lock</span><input type="checkbox" id="toggle-pin" class="toggle"></div>
+            <div id="pin-opts" style="display:none; margin-top:10px;">
+                <button id="btn-change-pin" class="action-btn btn-outline" style="margin-bottom:5px;">Change PIN</button>
             </div>
         </div>
 
