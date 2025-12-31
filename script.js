@@ -8,20 +8,27 @@ window.addEventListener('DOMContentLoaded', () => {
         document.documentElement.setAttribute('data-theme', savedTheme);
     }
 
-    // 2. Splash Screen Logic
+    // 2. Check for PIN Security first
+    const hasPin = localStorage.getItem('user-pin');
+    const splash = document.getElementById('splash-screen');
+    const main = document.getElementById('main-app');
+
+    // Splash Screen Logic
     setTimeout(() => {
-        const splash = document.getElementById('splash-screen');
-        const main = document.getElementById('main-app');
-        
         splash.style.opacity = '0';
         setTimeout(() => {
             splash.style.display = 'none';
-            main.style.display = 'block';
-            
-            // Show welcome toast
-            const toast = document.getElementById('toast');
-            toast.classList.add('visible');
-            setTimeout(() => toast.classList.remove('visible'), 3000);
+            // If PIN is set, verify it before showing main app
+            if(hasPin) {
+                // Pin logic is in app.js, we trigger an event or just let app.js handle rendering
+                // We rely on app.js to catch the load and show PIN screen
+                document.dispatchEvent(new Event('app-ready-check-pin'));
+            } else {
+                main.style.display = 'block';
+                const toast = document.getElementById('toast');
+                toast.classList.add('visible');
+                setTimeout(() => toast.classList.remove('visible'), 3000);
+            }
         }, 600);
     }, 2000);
 });
