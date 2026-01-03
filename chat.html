@@ -2,48 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Aryanta Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             /* --- THEME PALETTE --- */
-            --bg-body: #0b141a;       /* Deepest Dark */
-            --bg-header: #202c33;     /* Header/Footer */
-            --bg-chat: #0b141a;       /* Clean Dark Chat Bg */
-            --msg-in: #202c33;        /* Received Message */
-            --msg-out: #005c4b;       /* Sent Message */
-            --primary: #00a884;       /* WhatsApp Green */
-            --accent: #00e5ff;        /* Aryanta Cyan */
+            --bg-body: #0b141a;       
+            --bg-header: #202c33;     
+            --bg-chat: #0b141a;       
+            --msg-in: #202c33;        
+            --msg-out: #005c4b;       
+            --primary: #00a884;       
+            --accent: #00e5ff;        
             --text-main: #e9edef;
             --text-sec: #8696a0;
             --danger: #ef4444;
-            --glass: rgba(32, 44, 51, 0.95);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
+        /* FIX: Use fixed positioning to force app to fit screen exactly */
         body {
-            margin: 0; font-family: 'Inter', sans-serif;
+            margin: 0; padding: 0;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-body); color: var(--text-main);
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            width: 100%;
+            height: 100dvh; /* Dynamic height for mobile browsers */
+            position: fixed; /* Locks body to screen */
+            top: 0; left: 0;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
         /* --- VIEWS --- */
-        .view-section { display: none; flex: 1; flex-direction: column; height: 100%; }
+        .view-section { display: none; flex: 1; flex-direction: column; height: 100%; overflow: hidden; }
         .view-section.active { display: flex; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 
         /* --- HEADERS --- */
         .header {
             display: flex; align-items: center; padding: 0 15px;
-            background: var(--bg-header); height: 60px; min-height: 60px;
+            background: var(--bg-header); 
+            height: 60px; min-height: 60px; flex-shrink: 0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2); z-index: 20;
-            justify-content: space-between;
-            width: 100%;
+            justify-content: space-between; width: 100%;
+            padding-top: env(safe-area-inset-top); /* Notch support */
         }
 
-        /* Selection Header (Hidden by default) */
+        /* Selection Header */
         #selection-header { display: none; background: #0b141a; border-bottom: 1px solid #333; }
         #selection-header.active { display: flex; }
 
@@ -61,7 +67,7 @@
         .header-name { font-weight: 600; font-size: 17px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .header-status { font-size: 12px; color: var(--text-sec); }
 
-        /* --- 3 DOT MENU --- */
+        /* --- MENUS --- */
         .menu-container { position: relative; }
         .menu-btn { background: none; border: none; color: var(--text-sec); font-size: 22px; cursor: pointer; padding: 5px; }
         .dropdown-menu {
@@ -80,13 +86,16 @@
             transition: 0.2s; display: flex; align-items: center; gap: 10px;
         }
         .menu-item:hover { background: rgba(255,255,255,0.05); }
-        .menu-item:last-child { border: none; }
 
         /* --- CHAT AREA --- */
         #messages-container {
-            flex: 1; overflow-y: auto; padding: 15px 5%;
-            background-color: var(--bg-chat); /* Clean Dark Background */
+            flex: 1; 
+            overflow-y: auto; 
+            overflow-x: hidden;
+            padding: 15px 5%;
+            background-color: var(--bg-chat);
             display: flex; flex-direction: column; gap: 8px;
+            -webkit-overflow-scrolling: touch; /* Smooth scroll iOS */
         }
 
         .message-row { display: flex; width: 100%; margin-bottom: 2px; position: relative; }
@@ -99,97 +108,73 @@
             position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.3);
             display: flex; flex-direction: column;
         }
-        
         .bubble.sent { background: var(--msg-out); border-top-right-radius: 0; }
         .bubble.received { background: var(--msg-in); border-top-left-radius: 0; }
-
         .msg-content { word-wrap: break-word; }
-        .msg-meta {
-            display: flex; justify-content: flex-end; align-items: center;
-            gap: 4px; margin-top: 3px; margin-left: 10px;
-            font-size: 11px; color: rgba(255,255,255,0.6);
-        }
-
-        /* Images in Chat */
+        .msg-meta { display: flex; justify-content: flex-end; align-items: center; gap: 4px; margin-top: 3px; margin-left: 10px; font-size: 11px; color: rgba(255,255,255,0.6); }
         .msg-img { max-width: 260px; max-height: 350px; border-radius: 8px; margin-bottom: 5px; cursor: pointer; object-fit: cover; }
         .msg-file { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.1); }
 
         /* --- SELECTION MODE --- */
         .message-row.selecting .bubble { opacity: 0.6; }
         .message-row.selected .bubble { background: rgba(0, 168, 132, 0.4) !important; opacity: 1; border: 1px solid var(--primary); }
-        
         .select-actions { display: flex; gap: 25px; }
         .action-icon { font-size: 22px; color: var(--text-main); cursor: pointer; }
 
-        /* --- FOOTER / INPUT --- */
+        /* --- FOOTER / INPUT (FIXED BUG) --- */
         .chat-footer {
-            background: var(--bg-header); padding: 8px 10px;
+            background: var(--bg-header); 
+            padding: 8px 10px;
             display: flex; align-items: center; gap: 10px;
-            z-index: 20; min-height: 60px;
+            z-index: 20; 
+            min-height: 60px;
+            flex-shrink: 0; /* Prevents shrinking */
+            width: 100%;
+            padding-bottom: max(8px, env(safe-area-inset-bottom)); /* iPhone Home Bar Support */
         }
 
-        #attach-btn {
-            background: none; border: none; color: var(--text-sec);
-            font-size: 24px; cursor: pointer; padding: 8px;
-            transition: 0.2s;
-        }
+        #attach-btn { background: none; border: none; color: var(--text-sec); font-size: 24px; cursor: pointer; padding: 8px; }
         #attach-btn:active { color: var(--text-main); }
 
-        .input-box {
-            flex: 1; background: #2a3942; border-radius: 20px;
-            padding: 12px 20px; border: none; color: white; font-size: 16px;
-        }
+        .input-box { flex: 1; background: #2a3942; border-radius: 20px; padding: 12px 20px; border: none; color: white; font-size: 16px; min-height: 45px; }
 
         .send-btn {
             background: var(--primary); border: none; width: 45px; height: 45px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             color: white; cursor: pointer; font-size: 20px; transition: transform 0.2s;
+            flex-shrink: 0; /* Ensures button never disappears */
         }
         .send-btn:active { transform: scale(0.9); }
 
         /* --- TOOLS SHEET --- */
         #tools-sheet {
-            position: absolute; bottom: 75px; left: 15px;
+            position: absolute; bottom: 80px; left: 15px;
             background: var(--bg-header); border-radius: 16px;
             padding: 20px; display: none; flex-direction: column; gap: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6); width: 220px; z-index: 50;
-            animation: popUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(255,255,255,0.05);
+            animation: popUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
         .tool-opt { display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
-        .tool-opt:hover { opacity: 0.8; }
         .tool-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
         .t-cam { background: #d3396d; } .t-gal { background: #ac44cf; } .t-fil { background: #5157ae; }
         .tool-label { font-size: 16px; font-weight: 500; }
 
         /* --- MODALS --- */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
-            display: none; align-items: center; justify-content: center; z-index: 200;
-        }
-        .modal-card {
-            background: var(--bg-header); width: 90%; max-width: 340px;
-            border-radius: 20px; padding: 25px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s ease;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 200; }
+        .modal-card { background: var(--bg-header); width: 90%; max-width: 340px; border-radius: 20px; padding: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: fadeIn 0.3s ease; }
         .big-avatar { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px; background: #6b7280; display: flex; align-items: center; justify-content: center; font-size: 40px; overflow: hidden; position: relative; }
         .big-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .edit-icon { position: absolute; bottom: 5px; right: 5px; background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 50%; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--bg-header); }
 
-        /* --- HOME/LOGIN STYLES --- */
+        /* --- STYLES --- */
         .modern-input { width: 100%; padding: 15px; background: #2a3942; border: 1px solid #333; color: white; border-radius: 12px; margin-bottom: 15px; font-size: 16px; }
         .action-btn { width: 100%; padding: 15px; background: var(--primary); border: none; border-radius: 12px; font-weight: 600; cursor: pointer; color: #111b21; font-size: 16px; transition: 0.2s; }
-        .action-btn:active { transform: scale(0.98); }
         .chat-list-item { display: flex; padding: 15px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.2s; }
         .chat-list-item:hover { background: rgba(255,255,255,0.03); }
-
-        /* --- UTILS --- */
         .spinner { border: 3px solid rgba(255,255,255,0.1); border-left-color: var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
@@ -250,21 +235,9 @@
         <div id="messages-container"></div>
         
         <div id="tools-sheet">
-            <label class="tool-opt">
-                <div class="tool-icon t-cam">📷</div>
-                <div class="tool-label">Camera</div>
-                <input type="file" id="file-cam" accept="image/*" capture="environment" hidden>
-            </label>
-            <label class="tool-opt">
-                <div class="tool-icon t-gal">🖼️</div>
-                <div class="tool-label">Gallery (Max 17)</div>
-                <input type="file" id="file-gal" accept="image/*" multiple hidden>
-            </label>
-            <label class="tool-opt">
-                <div class="tool-icon t-fil">📄</div>
-                <div class="tool-label">Document</div>
-                <input type="file" id="file-doc" accept="*/*" hidden>
-            </label>
+            <label class="tool-opt"><div class="tool-icon t-cam">📷</div><div class="tool-label">Camera</div><input type="file" id="file-cam" accept="image/*" capture="environment" hidden></label>
+            <label class="tool-opt"><div class="tool-icon t-gal">🖼️</div><div class="tool-label">Gallery</div><input type="file" id="file-gal" accept="image/*" multiple hidden></label>
+            <label class="tool-opt"><div class="tool-icon t-fil">📄</div><div class="tool-label">Document</div><input type="file" id="file-doc" accept="*/*" hidden></label>
         </div>
 
         <div class="chat-footer">
@@ -287,13 +260,8 @@
             <div style="display:flex; gap:10px; justify-content:center; margin-bottom:20px;">
                 <button onclick="removeMyProfilePic()" style="background:none; border:1px solid var(--danger); color:var(--danger); padding:5px 10px; border-radius:8px; font-size:12px; cursor:pointer;">Remove Photo</button>
             </div>
-
-            <label style="display:block; text-align:left; font-size:12px; color:var(--text-sec); margin-bottom:5px;">Nickname</label>
             <input type="text" id="edit-my-name" class="modern-input" style="padding:10px;">
-            
-            <label style="display:block; text-align:left; font-size:12px; color:var(--text-sec); margin-bottom:5px;">UID (Cannot Change)</label>
             <input type="text" id="read-my-uid" class="modern-input" style="padding:10px; color:var(--primary); font-weight:bold; opacity:0.8;" readonly>
-
             <div style="display:flex; gap:10px; margin-top:10px;">
                 <button class="action-btn" style="background:#333; color:white;" onclick="document.getElementById('my-profile-modal').style.display='none'">Cancel</button>
                 <button class="action-btn" onclick="saveMyProfile()">Save</button>
@@ -340,22 +308,17 @@
             app = initializeApp(firebaseConfig);
             db = getDatabase(app);
             storage = getStorage(app);
-        } catch (e) { console.error(e); alert("Network error."); }
+        } catch (e) { console.error(e); }
 
-        // --- GLOBAL STATE ---
         let myData = { uid: null, nickname: null, pic: null };
-        let currentChatUser = null; // { uid, nickname, pic }
+        let currentChatUser = null; 
         let currentChatId = null;
         let isSelectMode = false;
         let selectedMsgs = new Set();
+        let tempProfilePic = null;
 
-        // --- DOM REFERENCES ---
         const views = { login: document.getElementById('login-view'), home: document.getElementById('home-view'), chat: document.getElementById('chat-view') };
-        const toolsSheet = document.getElementById('tools-sheet');
-        const attachBtn = document.getElementById('attach-btn');
-        const dropdownMenu = document.getElementById('dropdown-menu');
 
-        // --- INIT ---
         document.addEventListener('DOMContentLoaded', () => {
             const u = localStorage.getItem('aryanta_chat_uid');
             const n = localStorage.getItem('aryanta_chat_name');
@@ -364,12 +327,10 @@
             else { showView('login'); }
         });
 
-        // --- NAVIGATION ---
         function showView(name) {
             Object.values(views).forEach(v => v.classList.remove('active'));
             views[name].classList.add('active');
             
-            // Reset Headers
             document.getElementById('main-header').style.display = 'flex';
             document.getElementById('selection-header').classList.remove('active');
             
@@ -381,6 +342,11 @@
                 chatThumb.style.display = 'flex';
                 myThumb.style.display = 'none';
                 menu.style.display = 'block';
+                // Fix: Scroll to bottom immediately
+                setTimeout(() => {
+                    const con = document.getElementById('messages-container');
+                    con.scrollTop = con.scrollHeight;
+                }, 100);
             } else if (name === 'home') {
                 chatThumb.style.display = 'none';
                 myThumb.style.display = 'flex';
@@ -400,11 +366,9 @@
             } else { window.location.href = 'index.html'; }
         };
 
-        // --- AUTH ---
         document.getElementById('create-account-btn').onclick = async () => {
             const name = document.getElementById('nickname-input').value.trim();
             if(!name) return;
-            // Generate UID
             let unique = false, newUid = '';
             while(!unique) {
                 newUid = Math.floor(100000 + Math.random() * 900000).toString();
@@ -419,7 +383,6 @@
         };
 
         function setupUI() {
-            // Re-fetch profile in case changed on other device
             get(child(ref(db), `users/${myData.uid}`)).then(s => {
                 if(s.exists()) {
                     const val = s.val();
@@ -433,7 +396,7 @@
             loadRecentChats();
         }
 
-        // --- PROFILE DASHBOARD LOGIC ---
+        // --- PROFILE ---
         function renderMyThumb() {
             const t = document.getElementById('my-profile-thumb');
             if(myData.pic) t.innerHTML = `<img src="${myData.pic}">`;
@@ -456,27 +419,21 @@
             document.getElementById('my-profile-modal').style.display = 'flex';
         };
 
-        // Upload new pic
         document.getElementById('my-pic-upload').onchange = async (e) => {
-            const f = e.target.files[0];
-            if(!f) return;
-            // Upload
+            const f = e.target.files[0]; if(!f) return;
             const path = `profiles/${myData.uid}_${Date.now()}`;
             try {
                 const snap = await uploadBytes(sRef(storage, path), f);
                 const url = await getDownloadURL(snap.ref);
-                // Preview
                 document.getElementById('my-edit-img').src = url;
                 document.getElementById('my-edit-img').style.display = 'block';
                 document.getElementById('my-edit-initials').style.display = 'none';
-                // Store temporarily in attribute to save on 'Save' click or immediate?
-                // Let's store in a temp variable
-                window.tempProfilePic = url;
+                tempProfilePic = url;
             } catch(e) { alert("Upload Failed"); }
         };
 
         window.removeMyProfilePic = () => {
-            window.tempProfilePic = 'remove';
+            tempProfilePic = 'remove';
             document.getElementById('my-edit-img').style.display = 'none';
             document.getElementById('my-edit-initials').style.display = 'block';
             document.getElementById('my-edit-initials').innerText = myData.nickname[0].toUpperCase();
@@ -489,26 +446,22 @@
             const updates = {};
             updates[`users/${myData.uid}/nickname`] = newName;
             
-            if(window.tempProfilePic === 'remove') {
-                updates[`users/${myData.uid}/pic`] = null;
-                myData.pic = null;
-                localStorage.removeItem('aryanta_chat_pic');
-            } else if (window.tempProfilePic) {
-                updates[`users/${myData.uid}/pic`] = window.tempProfilePic;
-                myData.pic = window.tempProfilePic;
-                localStorage.setItem('aryanta_chat_pic', myData.pic);
+            if(tempProfilePic === 'remove') {
+                updates[`users/${myData.uid}/pic`] = null; myData.pic = null; localStorage.removeItem('aryanta_chat_pic');
+            } else if (tempProfilePic) {
+                updates[`users/${myData.uid}/pic`] = tempProfilePic; myData.pic = tempProfilePic; localStorage.setItem('aryanta_chat_pic', myData.pic);
             }
             
             myData.nickname = newName;
             localStorage.setItem('aryanta_chat_name', newName);
 
             await update(ref(db), updates);
-            window.tempProfilePic = null;
+            tempProfilePic = null;
             document.getElementById('my-profile-modal').style.display = 'none';
             renderMyThumb();
         };
 
-        // --- HOME / SEARCH ---
+        // --- SEARCH & CHAT LIST ---
         document.getElementById('search-btn').onclick = async () => {
             const t = document.getElementById('search-uid-input').value.trim();
             const res = document.getElementById('search-result');
@@ -534,15 +487,11 @@
             onValue(ref(db, `user-chats/${myData.uid}`), async (snap) => {
                 const list = document.getElementById('recent-chats-list'); list.innerHTML = '';
                 if(snap.exists()) {
-                    // Fetch details to get updated pics
                     const chats = [];
                     snap.forEach(c => chats.push({id: c.key, ...c.val()}));
-                    
                     for(let c of chats) {
-                        // Get latest user info for pic
                         const uSnap = await get(child(ref(db), `users/${c.id}`));
                         const uData = uSnap.exists() ? uSnap.val() : {nickname: c.name, pic: null};
-
                         const d = document.createElement('div'); d.className = 'chat-list-item';
                         d.innerHTML = `
                         <div class="profile-thumb" style="margin-right:15px;">
@@ -568,7 +517,6 @@
             if(user.pic) thumb.innerHTML = `<img src="${user.pic}">`;
             else thumb.innerText = user.nickname[0].toUpperCase();
             
-            // Thumb click opens info
             thumb.onclick = () => {
                 document.getElementById('info-name').innerText = user.nickname;
                 document.getElementById('info-uid').innerText = `UID: ${user.uid}`;
@@ -581,7 +529,6 @@
             document.getElementById('messages-container').innerHTML = '';
             showView('chat');
 
-            // Listen for Messages
             onValue(ref(db, `chats/${currentChatId}`), (snap) => {
                 const con = document.getElementById('messages-container');
                 con.innerHTML = '';
@@ -614,14 +561,11 @@
                 </div>
             `;
 
-            // Long Press Selection
             let timer;
             div.addEventListener('touchstart', () => { timer = setTimeout(() => toggleSelect(key), 500); });
             div.addEventListener('touchend', () => clearTimeout(timer));
             div.addEventListener('click', (e) => {
-                if(isSelectMode && e.target.tagName !== 'IMG' && e.target.tagName !== 'A') {
-                     toggleSelect(key);
-                }
+                if(isSelectMode && e.target.tagName !== 'IMG' && e.target.tagName !== 'A') { toggleSelect(key); }
             });
 
             document.getElementById('messages-container').appendChild(div);
@@ -629,10 +573,7 @@
 
         async function sendMessage(type, content) {
             if(!currentChatId) return;
-            await push(ref(db, `chats/${currentChatId}`), {
-                sender: myData.uid, type, content, timestamp: Date.now()
-            });
-            // Update Recent
+            await push(ref(db, `chats/${currentChatId}`), { sender: myData.uid, type, content, timestamp: Date.now() });
             const ts = Date.now();
             update(ref(db), {
                 [`user-chats/${myData.uid}/${currentChatUser.uid}`]: {name: currentChatUser.nickname, lastMsg: ts},
@@ -647,10 +588,10 @@
         };
 
         // --- TOOLS ---
-        attachBtn.onclick = () => {
-            const s = toolsSheet.style.display;
-            toolsSheet.style.display = s === 'flex' ? 'none' : 'flex';
-        };
+        const attachBtn = document.getElementById('attach-btn');
+        const toolsSheet = document.getElementById('tools-sheet');
+        attachBtn.onclick = () => { toolsSheet.style.display = toolsSheet.style.display === 'flex' ? 'none' : 'flex'; };
+
         const handleUpload = async (file) => {
             toolsSheet.style.display = 'none';
             const type = file.type.startsWith('image/') ? 'image' : 'file';
@@ -669,21 +610,12 @@
             for(let f of files) await handleUpload(f);
         };
 
-        // --- 3 DOT MENU ---
-        document.getElementById('menu-dots').onclick = (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); };
-        window.onclick = () => dropdownMenu.classList.remove('show');
+        // --- SELECTION & MENUS ---
+        document.getElementById('menu-dots').onclick = (e) => { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('show'); };
+        window.onclick = () => document.getElementById('dropdown-menu').classList.remove('show');
 
-        // View Contact
-        document.getElementById('opt-view-contact').onclick = () => {
-            document.getElementById('chat-header-thumb').click();
-        };
-
-        // Clear Chat
-        document.getElementById('opt-clear-chat').onclick = async () => {
-            if(confirm("Delete all messages?")) await remove(ref(db, `chats/${currentChatId}`));
-        };
-
-        // Select Mode
+        document.getElementById('opt-view-contact').onclick = () => document.getElementById('chat-header-thumb').click();
+        document.getElementById('opt-clear-chat').onclick = async () => { if(confirm("Delete all?")) await remove(ref(db, `chats/${currentChatId}`)); };
         document.getElementById('opt-select-msgs').onclick = () => enterSelectMode();
 
         function enterSelectMode() {
@@ -712,16 +644,13 @@
 
         document.getElementById('cancel-select-btn').onclick = exitSelectMode;
 
-        // Delete Selected
         document.getElementById('action-delete').onclick = async () => {
-            if(!confirm(`Delete ${selectedMsgs.size} messages?`)) return;
-            const updates = {};
-            selectedMsgs.forEach(key => updates[key] = null);
+            if(!confirm(`Delete ${selectedMsgs.size}?`)) return;
+            const updates = {}; selectedMsgs.forEach(key => updates[key] = null);
             await update(ref(db, `chats/${currentChatId}`), updates);
             exitSelectMode();
         };
 
-        // Forward
         document.getElementById('action-forward').onclick = () => {
             if(selectedMsgs.size === 0) return;
             onValue(ref(db, `user-chats/${myData.uid}`), (snap) => {
@@ -744,9 +673,7 @@
                 const snap = await get(child(ref(db), `chats/${currentChatId}/${key}`));
                 if(snap.exists()) {
                     const msg = snap.val();
-                    await push(ref(db, `chats/${targetChatId}`), {
-                        sender: myData.uid, type: msg.type, content: msg.content, timestamp: Date.now()
-                    });
+                    await push(ref(db, `chats/${targetChatId}`), { sender: myData.uid, type: msg.type, content: msg.content, timestamp: Date.now() });
                 }
             }
             const ts = Date.now();
@@ -754,11 +681,9 @@
                 [`user-chats/${myData.uid}/${targetUid}`]: {name: targetName, lastMsg: ts},
                 [`user-chats/${targetUid}/${myData.uid}`]: {name: myData.nickname, lastMsg: ts}
             });
-            document.getElementById('forward-modal').style.display = 'none';
-            exitSelectMode();
+            document.getElementById('forward-modal').style.display = 'none'; exitSelectMode();
             alert("Forwarded!");
         }
-
     </script>
 </body>
 </html>
