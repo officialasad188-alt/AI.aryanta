@@ -164,6 +164,7 @@
         .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 280px; }
         .pin-key { width: 70px; height: 70px; border-radius: 50%; background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main); font-size: 24px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .pin-key:active { background: var(--primary-dim); transform: scale(0.9); }
+        #forgot-pin-btn { margin-top:20px; background:none; border:none; color:var(--primary); font-size:13px; text-decoration:underline; cursor:pointer; opacity:0.8; }
         
         /* --- COPY BUTTON & EXTRAS --- */
         .copy-btn { background: none; border: none; cursor: pointer; font-size: 14px; opacity: 0.6; transition: 0.2s; margin-left: 8px; filter: grayscale(1); }
@@ -176,9 +177,10 @@
 
         /* --- FACE ID --- */
         #face-id-modal { display:none; position:fixed; inset:0; background:var(--bg-body); z-index:11000; flex-direction:column; align-items:center; justify-content:center; }
-        #video-container { position:relative; width:200px; height:200px; border-radius:50%; overflow:hidden; border:2px solid var(--glass-border); box-shadow:0 0 30px rgba(0,0,0,0.5); }
+        #video-container { position:relative; width:220px; height:220px; border-radius:50%; overflow:hidden; border:2px solid var(--glass-border); box-shadow:0 0 30px rgba(0,0,0,0.5); }
         #camera-stream { width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
-        .face-scan-ring { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:200px; height:200px; border:2px solid transparent; border-top:3px solid var(--primary); border-radius:50%; animation:scanSpin 2s linear infinite; }
+        .face-scan-ring { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:220px; height:220px; border:2px solid transparent; border-top:3px solid var(--primary); border-radius:50%; animation:scanSpin 1.5s linear infinite; }
+        .face-grid-overlay { position:absolute; inset:0; background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwyNTUsMjU1LDAuMykiLz48L3N2Zz4='); opacity:0; transition:opacity 0.5s; z-index:10; }
         @keyframes scanSpin { to { transform:translate(-50%,-50%) rotate(360deg); } }
 
         /* --- HELPERS --- */
@@ -209,12 +211,13 @@
     </div>
 
     <div id="face-id-modal">
-        <h2 style="margin-bottom:20px;">Identity Verify</h2>
+        <h2 style="margin-bottom:20px;" id="face-title">Biometric Scan</h2>
         <div id="video-container">
             <video id="camera-stream" autoplay playsinline muted></video>
+            <div class="face-grid-overlay" id="face-grid"></div>
             <div class="face-scan-ring"></div>
         </div>
-        <p id="face-msg" style="color:var(--text-muted); margin-top:20px; font-family:monospace;">Scanning Face...</p>
+        <p id="face-msg" style="color:var(--text-muted); margin-top:20px; font-family:monospace; text-align:center;">Initializing AI...</p>
     </div>
 
     <div id="pin-screen">
@@ -224,6 +227,7 @@
         <div class="pin-dots" id="pin-dots"></div>
         <div class="pin-grid" id="pin-pad"></div>
         <button id="cancel-pin" style="margin-top:30px; background:none; border:none; color:var(--text-muted); font-size:14px; display:none;">Cancel</button>
+        <button id="forgot-pin-btn">Forgot Password?</button>
     </div>
 
     <div id="toast">Welcome Back</div>
@@ -390,40 +394,19 @@
 
         <div class="section-label">Tools</div>
         <div class="grid-box">
-            <button class="btn-prime" id="btn-bug-report">
-                <span style="font-size:20px">🐛</span>
-                <span>Bug Reports</span>
+            <button class="btn-prime" id="btn-tools-section">
+                <span style="font-size:20px">🛠️</span>
+                <span>Tools Section</span>
             </button>
-            <button class="btn-prime" id="btn-aryanta-ai" style="border:1px solid var(--accent); background:rgba(124, 58, 237, 0.1);">
-                <span style="font-size:20px">🤖</span>
-                <span style="color:var(--accent);">Aryanta AI</span>
+            <button class="btn-prime" id="btn-chat-box" style="border:1px solid var(--accent); background:rgba(124, 58, 237, 0.1);">
+                <span style="font-size:20px">💬</span>
+                <span style="color:var(--accent);">Chat Box</span>
             </button>
         </div>
 
         <div class="app-footer">
             <img src="https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/405ba96c-ee6d-452d-a99a-38ae2fd6b74b.png" class="footer-logo">
             <div class="footer-text">POWERED BY ARYANTA</div>
-        </div>
-    </div>
-
-    <div id="bug-report-screen" class="app-screen">
-        <div style="display:flex; align-items:center; margin-bottom:20px;">
-            <button id="back-from-bugs" class="back-btn" style="background:none; border:none; color:var(--text-main); font-size:24px;">&larr;</button>
-            <h2 style="margin-left:15px;">System Status</h2>
-        </div>
-        <div class="premium-card">
-            <div style="text-align:center; padding:20px;">
-                <div style="font-size:40px;">🛡️</div>
-                <h3 style="margin:10px 0;">System Secure</h3>
-                <p style="font-size:12px; opacity:0.6;">All systems normal.</p>
-            </div>
-        </div>
-        <div class="section-label">Recent Fixes & Logs</div>
-        <div class="premium-card" style="padding:0;">
-            <div id="bug-list">
-                <div class="bug-item"><div class="bug-status"></div><div class="bug-info"><div class="bug-title">Camera Fix</div><div class="bug-desc">Resolved access permission errors</div></div><div style="font-size:10px; opacity:0.5;">FIXED</div></div>
-                <div class="bug-item"><div class="bug-status"></div><div class="bug-info"><div class="bug-title">Speed Optimization</div><div class="bug-desc">UI latency removed completely</div></div><div style="font-size:10px; opacity:0.5;">FIXED</div></div>
-            </div>
         </div>
     </div>
 
@@ -556,7 +539,9 @@
         <div class="section-label">Security</div>
         <div class="premium-card">
             <div class="setting-row"><span>App Lock</span><input type="checkbox" id="toggle-pin" class="toggle"></div>
-            <div id="pin-opts" style="display:none; margin-top:10px;">
+            <div id="pin-opts" style="display:none;">
+                <div class="setting-row" style="border:none; padding-top:0;"><span>Face Verification</span><input type="checkbox" id="toggle-face" class="toggle"></div>
+                <div style="font-size:11px; opacity:0.6; margin-bottom:15px;">Requires PIN to enable. Enforces face scan on login.</div>
                 <button id="btn-change-pin" class="action-btn btn-outline" style="margin-bottom:5px;">Change PIN</button>
             </div>
         </div>
