@@ -6,23 +6,20 @@
     <title>Aryanta Prime</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- PREMIUM DESIGN SYSTEM --- */
+        /* --- DESIGN SYSTEM --- */
         :root {
             --bg-dark: #000000;
             --bg-card: #121212;
             --bg-input: #1e1e1e;
             --border: #2a2a2a;
-            
             --primary: #3b82f6; 
             --primary-glow: rgba(59, 130, 246, 0.4);
             --danger: #ef4444;
             --badge: #ff3b30;
             --text-main: #ffffff;
             --text-sec: #888888;
-            
             --msg-me: #005c4b;
             --msg-them: #202020;
-            
             --font: 'Plus Jakarta Sans', sans-serif;
         }
 
@@ -37,11 +34,12 @@
         /* --- ANIMATIONS --- */
         .view-section { display: none; flex: 1; flex-direction: column; width: 100%; height: 100%; }
         .view-section.active { display: flex; animation: fadeIn 0.2s ease-out; }
-        @keyframes fadeIn { from { opacity:0; transform: scale(0.98); } to { opacity:1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity:0; transform: scale(0.99); } to { opacity:1; transform: scale(1); } }
 
-        /* --- AUTH SCREEN --- */
+        /* --- AUTH --- */
         .auth-container {
-            justify-content: center; align-items: center; padding: 30px; text-align: center;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            padding: 30px; text-align: center; height: 100%;
             background: radial-gradient(circle at top, #1a1a2e 0%, #000000 100%);
         }
         .logo { 
@@ -50,14 +48,12 @@
             font-size: 32px; font-weight: 800; box-shadow: 0 0 40px var(--primary-glow);
             margin-bottom: 25px;
         }
-        
         .input-box {
             width: 100%; max-width: 320px; background: var(--bg-input); border: 1px solid var(--border);
             padding: 16px; border-radius: 12px; color: white; font-size: 16px; margin-bottom: 12px;
             font-family: inherit; transition: 0.2s;
         }
         .input-box:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow); }
-        
         .btn-main {
             width: 100%; max-width: 320px; padding: 16px; background: var(--primary);
             color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px;
@@ -76,28 +72,18 @@
             border-radius: 30px; transition: 0.2s; cursor: pointer;
         }
         .profile-pill:active { background: var(--border); }
-        
         .avatar {
             width: 40px; height: 40px; border-radius: 50%; background: var(--border);
             display: flex; align-items: center; justify-content: center; font-weight: 600;
             object-fit: cover; border: 2px solid #000; flex-shrink: 0;
         }
-
         .btn-icon {
             width: 40px; height: 40px; background: none; border: none; color: white;
-            font-size: 20px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
-
-        /* --- TABS --- */
-        .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--bg-card); }
-        .tab { flex: 1; padding: 15px; text-align: center; color: var(--text-sec); font-weight: 500; cursor: pointer; transition: 0.2s; }
-        .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); background: rgba(59, 130, 246, 0.05); }
 
         /* --- LISTS --- */
         .scroll-list { flex: 1; overflow-y: auto; padding: 10px 0; }
-        .list-section { display: none; }
-        .list-section.active { display: block; }
-
         .row { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.1s; }
         .row:active { background: var(--bg-input); }
         .row-info { flex: 1; margin-left: 15px; overflow: hidden; }
@@ -105,11 +91,7 @@
         .row-name { font-weight: 600; color: white; }
         .row-meta { font-size: 12px; color: var(--text-sec); }
         .row-msg { font-size: 14px; color: var(--text-sec); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        
-        .unread-badge { 
-            background: var(--badge); color: white; font-size: 10px; padding: 2px 8px; 
-            border-radius: 10px; font-weight: bold; margin-left: 5px;
-        }
+        .unread-badge { background: var(--badge); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; margin-left: 5px; }
 
         /* --- CHAT AREA --- */
         .chat-zone {
@@ -117,33 +99,46 @@
             display: flex; flex-direction: column; gap: 5px;
             background-image: radial-gradient(#1a1a1a 1px, transparent 1px); background-size: 20px 20px;
         }
-
         .date-badge {
             align-self: center; background: var(--bg-input); padding: 5px 12px;
-            border-radius: 20px; font-size: 11px; color: var(--text-sec); margin: 15px 0;
-            border: 1px solid var(--border);
+            border-radius: 20px; font-size: 11px; color: var(--text-sec); margin: 15px 0; border: 1px solid var(--border);
         }
-
         .bubble-wrap { display: flex; width: 100%; margin-bottom: 2px; }
         .bubble-wrap.sent { justify-content: flex-end; }
-        
         .bubble {
             max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 15px;
-            position: relative; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.2); word-break: break-word;
         }
         .bubble.sent { background: var(--msg-me); color: #e9edef; border-bottom-right-radius: 2px; }
         .bubble.recv { background: var(--msg-them); color: white; border-bottom-left-radius: 2px; }
-        
         .bubble-time {
             font-size: 10px; color: rgba(255,255,255,0.6); text-align: right;
             margin-top: 4px; display: flex; justify-content: flex-end; gap: 4px;
         }
-
         .reply-box {
             background: rgba(0,0,0,0.3); border-left: 3px solid var(--primary);
-            padding: 5px; margin-bottom: 5px; border-radius: 4px; font-size: 12px;
-            color: #ddd; display: flex; flex-direction: column;
+            padding: 5px; margin-bottom: 5px; border-radius: 4px; font-size: 12px; color: #ddd;
         }
+
+        /* --- CONTACT CARD BUBBLE --- */
+        .contact-card {
+            background: rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; margin-bottom: 5px;
+            border: 1px solid rgba(255,255,255,0.1); width: 220px;
+        }
+        .contact-head {
+            display: flex; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); gap: 10px;
+        }
+        .contact-actions {
+            display: flex; border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .c-btn {
+            flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600;
+            cursor: pointer; color: var(--primary); background: none; border: none;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .c-btn:last-child { border: none; }
+        .c-btn:active { background: rgba(255,255,255,0.1); }
+        .c-btn.bl { color: var(--danger); }
 
         /* --- FOOTER --- */
         .footer { padding: 10px; background: var(--bg-card); border-top: 1px solid var(--border); }
@@ -161,7 +156,7 @@
             border: none; color: white; font-size: 18px; cursor: pointer;
         }
 
-        /* --- MODALS & DROPDOWNS --- */
+        /* --- MODALS --- */
         .modal-bg {
             position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
             z-index: 100; display: none; align-items: center; justify-content: center;
@@ -171,28 +166,28 @@
             border-radius: 20px; border: 1px solid var(--border); text-align: center;
         }
         
+        /* Context Menu & Dropdowns */
         .dropdown {
             position: absolute; top: 60px; right: 10px; width: 180px;
             background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
             display: none; flex-direction: column; z-index: 90; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .drop-item { padding: 15px; border-bottom: 1px solid var(--border); font-size: 14px; cursor: pointer; }
+        .drop-item { padding: 15px; border-bottom: 1px solid var(--border); font-size: 14px; cursor: pointer; text-align: left; }
         .drop-item:last-child { border: none; }
         .drop-item.red { color: var(--danger); }
 
-        /* Context Menu */
         .ctx-overlay { position: fixed; inset: 0; z-index: 110; display: none; }
-        .ctx-menu { position: absolute; background: var(--bg-card); border: 1px solid var(--border); width: 200px; border-radius: 10px; }
+        .ctx-menu { position: absolute; background: var(--bg-card); border: 1px solid var(--border); width: 200px; border-radius: 10px; overflow: hidden;}
 
     </style>
 </head>
 <body>
 
     <div id="view-auth" class="view-section active">
-        <div class="auth-container" style="height:100%;">
+        <div class="auth-container">
             <div class="logo">A</div>
             <h1 style="margin-bottom: 5px;">Aryanta Prime</h1>
-            <p style="color:var(--text-sec); margin-bottom: 40px;">Premium Chat Experience</p>
+            <p style="color:var(--text-sec); margin-bottom: 40px;">Secure Messaging</p>
 
             <div id="form-register">
                 <input id="reg-name" class="input-box" placeholder="Your Name" maxlength="20">
@@ -219,20 +214,11 @@
                     <div id="home-uid" style="font-size:11px; color:var(--primary);"></div>
                 </div>
             </div>
-            <button class="btn-icon" onclick="Auth.logout()">&#10162;</button>
-        </div>
-
-        <div class="tabs">
-            <div class="tab active" id="tab-chats" onclick="UI.switchTab('chats')">Chats</div>
-            <div class="tab" id="tab-users" onclick="UI.switchTab('users')">Directory</div>
+            <button class="btn-icon" onclick="UI.openModal('modal-new-chat')">&#43;</button>
         </div>
 
         <div class="scroll-list">
-            <div id="list-chats" class="list-section active"></div>
-            
-            <div id="list-users" class="list-section">
-                <div style="text-align:center; padding:20px; color:var(--text-sec)">Loading...</div>
-            </div>
+            <div id="list-chats"></div>
         </div>
     </div>
 
@@ -258,7 +244,7 @@
 
         <div id="footer-area" class="footer">
             <div id="reply-bar" class="reply-bar">
-                <div style="font-size:12px; color:white;">Replying to <b id="reply-name"></b></div>
+                <div style="font-size:12px; color:white;">Replying...</div>
                 <button class="btn-icon" style="height:20px; width:20px;" onclick="Chat.cancelReply()">&#10005;</button>
             </div>
             <div class="input-group">
@@ -278,26 +264,41 @@
             <h2 id="prof-name" style="margin:5px 0;"></h2>
             <p id="prof-uid" style="color:var(--primary); font-family:monospace; margin-bottom:20px;"></p>
             <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
-            <button class="btn-main" style="background:var(--border); margin-bottom:10px;" onclick="Auth.logout()">Log Out (Safe)</button>
-            <button class="btn-main btn-danger" onclick="Auth.deleteAccount()">DELETE ACCOUNT</button>
+            <button class="btn-main" style="background:var(--border); margin-bottom:10px;" onclick="Auth.logout()">Log Out</button>
             <div style="margin-top:15px; font-size:14px; cursor:pointer;" onclick="UI.closeModal('modal-profile')">Close</div>
         </div>
     </div>
 
-    <div id="modal-forward" class="modal-bg">
+    <div id="modal-new-chat" class="modal-bg">
+        <div class="modal-card">
+            <h3>Start New Chat</h3>
+            <p style="color:var(--text-sec); font-size:13px; margin-bottom:15px;">Enter the 6-digit User UID</p>
+            <input id="search-uid" type="tel" class="input-box" placeholder="123456" maxlength="6" style="text-align:center; letter-spacing:2px;">
+            <button class="btn-main" onclick="Data.searchUser()">Find User</button>
+            <div style="margin-top:15px; cursor:pointer; color:var(--text-sec)" onclick="UI.closeModal('modal-new-chat')">Cancel</div>
+            
+            <div id="search-result" style="display:none; margin-top:20px; background:var(--bg-input); padding:15px; border-radius:12px;">
+                <div class="avatar" id="res-av" style="margin:0 auto 10px;"></div>
+                <div id="res-name" style="font-weight:bold; margin-bottom:10px;"></div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-main" style="padding:10px;" onclick="Chat.startFromSearch()">Chat</button>
+                    <button class="btn-main btn-danger" style="padding:10px; background:var(--danger);" onclick="Chat.blockFromSearch()">Block</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-share" class="modal-bg">
         <div class="modal-card" style="max-height:400px; display:flex; flex-direction:column;">
-            <h3>Forward To</h3>
-            <div id="forward-list" style="overflow-y:auto; flex:1; text-align:left;"></div>
-            <button class="btn-main" style="margin-top:10px;" onclick="UI.closeModal('modal-forward')">Cancel</button>
+            <h3 id="share-title">Share Contact</h3>
+            <div id="share-list" style="overflow-y:auto; flex:1; text-align:left;"></div>
+            <button class="btn-main" style="margin-top:10px; background:var(--border);" onclick="UI.closeModal('modal-share')">Cancel</button>
         </div>
     </div>
 
     <div id="ctx-layer" class="ctx-overlay" onclick="this.style.display='none'">
         <div id="ctx-menu" class="ctx-menu" onclick="event.stopPropagation()">
-            <div class="drop-item" onclick="Chat.ctxReply()">Reply</div>
-            <div class="drop-item" onclick="Chat.ctxForward()">Forward</div>
-            <div class="drop-item red" onclick="Chat.ctxDelete()">Delete</div>
-        </div>
+            </div>
     </div>
 
     <script type="module">
@@ -316,26 +317,23 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- STATE & CACHE ---
+        // --- STATE ---
         const State = {
             user: null,
             chat: null,
             replyTo: null,
-            ctxMsg: null,
-            unreadMap: {}, 
-            allUsers: [],
-           listeners: {
-  chatRef: null
-}
-
+            ctxTarget: null, // Can be a message (obj) or a user (obj)
+            ctxType: null,   // 'msg' or 'user'
+            myChats: [],     // Cache of inbox users for sharing
+            searchRes: null
         };
 
-        // --- AUTHENTICATION ---
+        // --- AUTH ---
         const Auth = {
             init: () => {
-                const localData = localStorage.getItem('aryanta_session');
-                if (localData) {
-                    State.user = JSON.parse(localData);
+                const local = localStorage.getItem('aryanta_session');
+                if (local) {
+                    State.user = JSON.parse(local);
                     Auth.loadHome();
                 }
             },
@@ -343,17 +341,16 @@
                 const name = document.getElementById('reg-name').value.trim();
                 const pin = document.getElementById('reg-pin').value.trim();
                 if(!name || pin.length!==4) return alert("Name & 4-digit PIN required");
-
+                
                 let uid = Math.floor(100000 + Math.random() * 900000).toString();
                 const userData = { uid, nickname: name, pin };
-
                 await set(ref(db, `users/${uid}`), userData);
                 Auth.saveSession(userData);
             },
             login: async () => {
                 const uid = document.getElementById('login-uid').value.trim();
                 const pin = document.getElementById('login-pin').value.trim();
-                if(!uid || !pin) return alert("Missing Info");
+                if(!uid || !pin) return;
 
                 const snap = await get(ref(db, `users/${uid}`));
                 if(snap.exists() && snap.val().pin === pin) {
@@ -368,213 +365,140 @@
                 Auth.loadHome();
             },
             logout: () => { localStorage.removeItem('aryanta_session'); location.reload(); },
-            deleteAccount: async () => {
-                if(prompt("Type DELETE to confirm.") === "DELETE") {
-                    await remove(ref(db, `users/${State.user.uid}`));
-                    await remove(ref(db, `user-chats/${State.user.uid}`));
-                    localStorage.clear();
-                    location.reload();
-                }
-            },
             loadHome: () => {
                 document.getElementById('home-name').innerText = State.user.nickname;
                 document.getElementById('home-uid').innerText = `UID: ${State.user.uid}`;
                 UI.renderAvatar('home-av', State.user);
                 UI.changeView('view-home');
-                
-                // Start Listeners
                 Data.listenToChats();
-                Data.loadDirectory();
             }
         };
 
-        // --- DATA HANDLING ---
+        // --- DATA ---
         const Data = {
             listenToChats: () => {
-                const chatListRef = ref(db, `user-chats/${State.user.uid}`);
-                onValue(chatListRef, async (snap) => {
+                onValue(ref(db, `user-chats/${State.user.uid}`), async (snap) => {
                     const div = document.getElementById('list-chats');
                     div.innerHTML = '';
-                    State.unreadMap = {}; 
+                    State.myChats = [];
 
-                    if(!snap.exists()) { 
-                        div.innerHTML = '<div style="padding:20px; text-align:center; color:gray">No chats yet.</div>'; 
-                        UI.renderDirectoryList(); // Refresh badges
-                        return; 
+                    if(!snap.exists()) {
+                        div.innerHTML = '<div style="padding:40px; text-align:center; color:gray">Tap + to start a new chat</div>';
+                        return;
                     }
 
                     const chats = [];
                     snap.forEach(c => {
-                        const val = c.val();
-                        chats.push({id: c.key, ...val});
-                        if(val.unread > 0) State.unreadMap[c.key] = val.unread;
+                        chats.push({id: c.key, ...c.val()});
                     });
-                    
                     chats.sort((a,b) => b.timestamp - a.timestamp);
 
                     for(let c of chats) {
                         const uSnap = await get(ref(db, `users/${c.id}`));
-                        const uData = uSnap.exists() ? uSnap.val() : {nickname:"Deleted", uid:c.id};
+                        const uData = uSnap.exists() ? uSnap.val() : {nickname:"Unknown", uid:c.id};
+                        State.myChats.push(uData); // Cache for sharing
                         
-                        // FIX: Explicit click handler logic
                         const el = UI.createChatRow(uData, c);
-                        el.onclick = () => Chat.open(uData); // Critical fix
                         div.appendChild(el);
                     }
-
-                    UI.renderDirectoryList();
                 });
             },
-
-            loadDirectory: () => {
-                onValue(ref(db, 'users'), snap => {
-                    State.allUsers = [];
-                    snap.forEach(c => {
-                        const u = c.val();
-                        if(u.uid !== State.user.uid) State.allUsers.push(u);
-                    });
-                    UI.renderDirectoryList();
-                });
+            searchUser: async () => {
+                const uid = document.getElementById('search-uid').value.trim();
+                if(uid.length !== 6) return alert("Enter 6-digit UID");
+                
+                const snap = await get(ref(db, `users/${uid}`));
+                if(snap.exists()) {
+                    State.searchRes = snap.val();
+                    document.getElementById('search-result').style.display = 'block';
+                    document.getElementById('res-name').innerText = State.searchRes.nickname;
+                    UI.renderAvatar('res-av', State.searchRes);
+                } else {
+                    alert("User not found");
+                }
             }
         };
 
         // --- CHAT LOGIC ---
         const Chat = {
             open: async (partner) => {
-                // Remove old listener if exists
-                if (State.listeners.chatRef) {
-  off(State.listeners.chatRef);
-  State.listeners.chatRef = null;
-}
-
-                
-                // Show Chat View Immediately
+                UI.closeModal('modal-new-chat');
                 UI.changeView('view-chat');
-                document.getElementById('msg-area').innerHTML = '<div style="text-align:center; padding:20px; color:gray">Loading secure chat...</div>';
+                document.getElementById('msg-area').innerHTML = '';
                 document.getElementById('head-name').innerText = partner.nickname;
                 UI.renderAvatar('head-av', partner);
 
-                // Setup IDs
                 const chatId = [State.user.uid, partner.uid].sort().join('_');
                 State.chat = { chatId, partner, blocked: false };
-                
-                // Check Blocks
+
+                // Check Block
                 const b1 = await get(ref(db, `blocked/${State.user.uid}/${partner.uid}`));
                 const b2 = await get(ref(db, `blocked/${partner.uid}/${State.user.uid}`));
                 State.chat.blocked = b1.exists() || b2.exists();
                 State.chat.blockedByMe = b1.exists();
                 Chat.updateBlockUI();
 
-                // Reset Unread
+                // Clear unread
                 update(ref(db, `user-chats/${State.user.uid}/${partner.uid}`), { unread: 0 });
 
-                // Load Msgs
+                // Listen Msgs
                 let lastDate = '';
-                const messagesRef = ref(db, `chats/${chatId}`);
-State.listeners.chatRef = messagesRef;
-
-onValue(messagesRef, (snap) => {
-
+                onValue(ref(db, `chats/${chatId}`), (snap) => {
                     const div = document.getElementById('msg-area');
-                    div.innerHTML = ''; 
-                    
+                    div.innerHTML = '';
                     if(snap.exists()) {
                         snap.forEach(child => {
                             const msg = child.val();
                             const d = new Date(msg.timestamp).toDateString();
                             if(d !== lastDate) {
-                                div.innerHTML += `<div class="date-badge">${d === new Date().toDateString() ? 'Today' : d}</div>`;
+                                div.innerHTML += `<div class="date-badge">${d}</div>`;
                                 lastDate = d;
                             }
                             UI.renderBubble(child.key, msg, div);
                         });
                         setTimeout(() => div.scrollTop = div.scrollHeight, 50);
-                    } else {
-                         div.innerHTML = '<div style="text-align:center; padding:50px; color:gray">No messages yet.<br>Say Hello!</div>';
                     }
                 });
             },
-
             send: async () => {
-                if(State.chat.blocked) return alert("Blocked conversation.");
+                if(State.chat.blocked) return alert("Blocked.");
                 const inp = document.getElementById('msg-input');
                 const txt = inp.value.trim();
                 if(!txt) return;
 
+                Chat.pushMsg({ type: 'text', content: txt });
+                inp.value = '';
+                Chat.cancelReply();
+            },
+            pushMsg: async (msgData) => {
                 const payload = {
                     sender: State.user.uid,
-                    content: txt,
                     timestamp: Date.now(),
-                    replyTo: State.replyTo
+                    replyTo: State.replyTo,
+                    ...msgData // type, content/contactInfo
                 };
-
+                
                 await push(ref(db, `chats/${State.chat.chatId}`), payload);
-
-                const meta = { lastMsg: txt, timestamp: Date.now(), sender: State.user.uid };
+                
+                // Update Inbox for both
+                const txtPreview = msgData.type === 'contact' ? `👤 Contact: ${msgData.contactInfo.nickname}` : msgData.content;
+                const meta = { lastMsg: txtPreview, timestamp: Date.now(), sender: State.user.uid };
                 
                 update(ref(db, `user-chats/${State.user.uid}/${State.chat.partner.uid}`), {...meta, unread:0});
                 runTransaction(ref(db, `user-chats/${State.chat.partner.uid}/${State.user.uid}`), (curr) => {
                     return { ...meta, unread: (curr?curr.unread:0)+1 };
                 });
-
-                inp.value = '';
-                Chat.cancelReply();
+            },
+            
+            // New Chat Modal Actions
+            startFromSearch: () => Chat.open(State.searchRes),
+            blockFromSearch: async () => {
+                await set(ref(db, `blocked/${State.user.uid}/${State.searchRes.uid}`), true);
+                alert("User Blocked");
+                UI.closeModal('modal-new-chat');
             },
 
-            initReply: (msg) => {
-                State.replyTo = { sender: msg.sender, content: msg.content };
-                document.getElementById('reply-bar').style.display = 'flex';
-                document.getElementById('reply-name').innerText = msg.content;
-                document.getElementById('msg-input').focus();
-            },
-            cancelReply: () => {
-                State.replyTo = null;
-                document.getElementById('reply-bar').style.display = 'none';
-            },
-
-            // Context Menu Actions
-            ctxReply: () => { document.getElementById('ctx-layer').style.display='none'; Chat.initReply(State.ctxMsg); },
-            ctxDelete: async () => {
-                document.getElementById('ctx-layer').style.display='none';
-                if(State.ctxMsg.sender !== State.user.uid) return alert("Cannot delete others' messages");
-                if(confirm("Delete this message?")) {
-                    await remove(ref(db, `chats/${State.chat.chatId}/${State.ctxKey}`));
-                }
-            },
-            ctxForward: () => {
-                document.getElementById('ctx-layer').style.display='none';
-                UI.openModal('modal-forward');
-                const list = document.getElementById('forward-list');
-                list.innerHTML = '';
-                State.allUsers.forEach(u => {
-                    const d = document.createElement('div');
-                    d.className = 'drop-item';
-                    d.innerText = u.nickname;
-                    d.onclick = () => Chat.execForward(u);
-                    list.appendChild(d);
-                });
-            },
-            execForward: async (target) => {
-                const newChatId = [State.user.uid, target.uid].sort().join('_');
-                const payload = {
-                    sender: State.user.uid,
-                    content: State.ctxMsg.content,
-                    timestamp: Date.now(),
-                    forwarded: true
-                };
-                await push(ref(db, `chats/${newChatId}`), payload);
-                runTransaction(ref(db, `user-chats/${target.uid}/${State.user.uid}`), (curr) => {
-                    return { 
-                        lastMsg: `Fwd: ${State.ctxMsg.content}`, 
-                        timestamp: Date.now(), 
-                        unread: (curr?curr.unread:0)+1,
-                        sender: State.user.uid 
-                    };
-                });
-                alert(`Forwarded to ${target.nickname}`);
-                UI.closeModal('modal-forward');
-            },
-
+            // Block Logic
             toggleBlock: async () => {
                 const path = `blocked/${State.user.uid}/${State.chat.partner.uid}`;
                 if(State.chat.blockedByMe) {
@@ -594,75 +518,110 @@ onValue(messagesRef, (snap) => {
                 document.getElementById('block-msg').style.display = blk ? 'block' : 'none';
                 document.getElementById('btn-block').innerText = State.chat.blockedByMe ? "Unblock User" : "Block User";
             },
-            clearChat: async () => {
-                if(confirm("Delete entire chat history?")) {
-                    await remove(ref(db, `chats/${State.chat.chatId}`));
-                    UI.goHome();
+
+            // Reply & Context
+            initReply: (msg) => {
+                State.replyTo = { content: msg.type==='contact' ? 'Shared Contact' : msg.content };
+                document.getElementById('reply-bar').style.display = 'flex';
+                document.getElementById('msg-input').focus();
+            },
+            cancelReply: () => {
+                State.replyTo = null;
+                document.getElementById('reply-bar').style.display = 'none';
+            },
+            
+            // Sharing Logic
+            initShare: (userToShare) => {
+                // userToShare is the object of the person we want to share
+                State.ctxTarget = userToShare;
+                UI.openModal('modal-share');
+                document.getElementById('share-title').innerText = "Share to...";
+                
+                const list = document.getElementById('share-list');
+                list.innerHTML = '';
+                State.myChats.forEach(u => {
+                    const d = document.createElement('div');
+                    d.className = 'drop-item';
+                    d.innerText = u.nickname;
+                    d.onclick = () => Chat.execShare(u); // u is the RECEIVER
+                    list.appendChild(d);
+                });
+            },
+            execShare: async (receiver) => {
+                // Determine Chat ID with Receiver
+                const chatId = [State.user.uid, receiver.uid].sort().join('_');
+                
+                const payload = {
+                    sender: State.user.uid,
+                    timestamp: Date.now(),
+                    type: 'contact',
+                    contactInfo: {
+                        uid: State.ctxTarget.uid,
+                        nickname: State.ctxTarget.nickname
+                    }
+                };
+                
+                await push(ref(db, `chats/${chatId}`), payload);
+                
+                // Update Inbox
+                const meta = { lastMsg: `👤 Contact: ${State.ctxTarget.nickname}`, timestamp: Date.now(), sender: State.user.uid };
+                runTransaction(ref(db, `user-chats/${receiver.uid}/${State.user.uid}`), (curr) => ({ ...meta, unread: (curr?curr.unread:0)+1 }));
+                update(ref(db, `user-chats/${State.user.uid}/${receiver.uid}`), {...meta, unread:0});
+
+                alert("Contact Sent!");
+                UI.closeModal('modal-share');
+                document.getElementById('ctx-layer').style.display='none';
+            },
+            
+            // Delete Chat from Inbox
+            deleteChat: async (targetUid) => {
+                if(confirm("Delete this chat from your list?")) {
+                    await remove(ref(db, `user-chats/${State.user.uid}/${targetUid}`));
+                    document.getElementById('ctx-layer').style.display='none';
+                }
+            },
+            
+            // Message Delete
+            deleteMsg: async (key) => {
+                if(confirm("Delete message?")) {
+                    await remove(ref(db, `chats/${State.chat.chatId}/${key}`));
+                    document.getElementById('ctx-layer').style.display='none';
                 }
             }
         };
 
-        // --- UI HELPERS ---
+        // --- UI ---
         const UI = {
             toggleAuth: (m) => {
                 document.getElementById('form-register').style.display = m=='reg'?'block':'none';
                 document.getElementById('form-login').style.display = m=='login'?'block':'none';
             },
-            switchTab: (t) => {
-                document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
-                document.querySelectorAll('.list-section').forEach(e=>e.classList.remove('active'));
-                document.getElementById(`tab-${t}`).classList.add('active');
-                document.getElementById(`list-${t}`).classList.add('active');
-            },
             changeView: (v) => {
                 document.querySelectorAll('.view-section').forEach(e=>e.classList.remove('active'));
                 document.getElementById(v).classList.add('active');
             },
+            openModal: (id) => {
+                document.getElementById(id).style.display='flex';
+                if(id==='modal-new-chat') {
+                    document.getElementById('search-uid').value='';
+                    document.getElementById('search-result').style.display='none';
+                }
+            },
+            closeModal: (id) => document.getElementById(id).style.display='none',
+            goHome: () => { State.chat=null; UI.changeView('view-home'); },
+            
             renderAvatar: (id, u) => {
                 const el = document.getElementById(id);
                 el.innerText = u.nickname[0].toUpperCase();
-                el.style.backgroundColor = stringToColor(u.nickname);
-            },
-            
-            // FIX: Using createElement instead of innerHTML to preserve events
-            renderDirectoryList: () => {
-                const div = document.getElementById('list-users');
-                div.innerHTML = '';
-                
-                if(State.allUsers.length === 0) {
-                     div.innerHTML = '<div style="text-align:center; padding:20px; color:gray">No other users yet.</div>';
-                     return;
-                }
-
-                State.allUsers.forEach(u => {
-                    const d = document.createElement('div');
-                    d.className = 'row';
-                    
-                    // CRITICAL FIX: Direct function assignment
-                    d.onclick = () => Chat.open(u);
-                    
-                    const unreadCount = State.unreadMap[u.uid] || 0;
-                    const badgeHtml = unreadCount > 0 ? `<div class="unread-badge">New</div>` : '';
-
-                    d.innerHTML = `
-                        <div class="avatar" style="background:${stringToColor(u.nickname)}">${u.nickname[0]}</div>
-                        <div class="row-info">
-                            <div class="row-top">
-                                <span class="row-name">${u.nickname}</span>
-                                ${badgeHtml}
-                            </div>
-                            <div class="row-msg">Tap to message</div>
-                        </div>
-                    `;
-                    div.appendChild(d);
-                });
+                el.style.backgroundColor = `hsl(${stringHash(u.nickname) % 360}, 60%, 50%)`;
             },
 
+            // Create Inbox Row with Long Press
             createChatRow: (user, chat) => {
                 const d = document.createElement('div');
                 d.className = 'row';
                 d.innerHTML = `
-                    <div class="avatar" style="background:${stringToColor(user.nickname)}">${user.nickname[0]}</div>
+                    <div class="avatar" style="background:hsl(${stringHash(user.nickname)%360},60%,50%)">${user.nickname[0]}</div>
                     <div class="row-info">
                         <div class="row-top">
                             <span class="row-name">${user.nickname}</span>
@@ -671,35 +630,107 @@ onValue(messagesRef, (snap) => {
                         <div class="row-msg" style="${chat.unread?'font-weight:bold;color:white':''}">${chat.sender===State.user.uid?'You: ':''}${chat.lastMsg}</div>
                     </div>
                 `;
+                
+                // Click to Open
+                d.onclick = () => Chat.open(user);
+
+                // Long Press for Context Menu
+                let timer;
+                const start = (e) => {
+                    timer = setTimeout(() => {
+                        UI.showUserCtx(e, user);
+                    }, 600);
+                };
+                const end = () => clearTimeout(timer);
+                d.addEventListener('touchstart', start);
+                d.addEventListener('touchend', end);
+                d.addEventListener('mousedown', start);
+                d.addEventListener('mouseup', end);
+                
                 return d;
             },
+
+            // Show User Context Menu (Inbox)
+            showUserCtx: (e, user) => {
+                State.ctxType = 'user';
+                State.ctxTarget = user;
+                const menu = document.getElementById('ctx-menu');
+                menu.innerHTML = `
+                    <div class="drop-item" onclick="Chat.initShare(State.ctxTarget)">Share Contact</div>
+                    <div class="drop-item red" onclick="Chat.deleteChat('${user.uid}')">Delete Chat</div>
+                `;
+                UI.posMenu(e, menu);
+            },
+
+            // Show Message Context Menu (Chat)
+            showMsgCtx: (e, msg, key) => {
+                State.ctxType = 'msg';
+                const menu = document.getElementById('ctx-menu');
+                // Only allow delete if I sent it
+                const delOpt = msg.sender === State.user.uid ? `<div class="drop-item red" onclick="Chat.deleteMsg('${key}')">Delete</div>` : '';
+                
+                menu.innerHTML = `
+                    <div class="drop-item" onclick="Chat.initReply({content:'${msg.content}', type:'${msg.type}'})">Reply</div>
+                    ${delOpt}
+                `;
+                UI.posMenu(e, menu);
+            },
+
+            posMenu: (e, menu) => {
+                const x = e.clientX || e.touches[0].clientX;
+                const y = e.clientY || e.touches[0].clientY;
+                menu.style.left = Math.min(x, window.innerWidth-210)+'px';
+                menu.style.top = Math.min(y, window.innerHeight-150)+'px';
+                document.getElementById('ctx-layer').style.display='block';
+            },
+
             renderBubble: (key, msg, container) => {
                 const isMe = msg.sender === State.user.uid;
                 const div = document.createElement('div');
                 div.className = `bubble-wrap ${isMe?'sent':''}`;
-                
+
+                // Long Press
                 let timer;
-                const start = (e) => timer = setTimeout(() => {
-                    State.ctxMsg = msg; State.ctxKey = key;
-                    const menu = document.getElementById('ctx-menu');
-                    const x = e.clientX || e.touches[0].clientX;
-                    const y = e.clientY || e.touches[0].clientY;
-                    menu.style.left = Math.min(x, window.innerWidth-210)+'px';
-                    menu.style.top = Math.min(y, window.innerHeight-150)+'px';
-                    document.getElementById('ctx-layer').style.display='block';
-                }, 600);
+                const start = (e) => timer = setTimeout(() => UI.showMsgCtx(e, msg, key), 600);
                 const end = () => clearTimeout(timer);
                 div.onmousedown = div.ontouchstart = start;
                 div.onmouseup = div.ontouchend = end;
-                div.ondblclick = () => Chat.initReply(msg);
 
+                // Reply HTML
                 let reply = '';
-                if(msg.replyTo) reply = `<div class="reply-box"><span>Replying to:</span><b>${msg.replyTo.content}</b></div>`;
+                if(msg.replyTo) reply = `<div class="reply-box"><span>Replying to:</span><br><b>${msg.replyTo.content}</b></div>`;
+
+                // Content Logic
+                let contentHtml = '';
+                if (msg.type === 'contact') {
+                    // CONTACT CARD RENDER
+                    const c = msg.contactInfo;
+                    contentHtml = `
+                        <div class="contact-card">
+                            <div class="contact-head">
+                                <div class="avatar" style="width:35px; height:35px; background:hsl(${stringHash(c.nickname)%360},60%,50%)">${c.nickname[0]}</div>
+                                <div>
+                                    <div style="font-weight:bold; font-size:14px;">${c.nickname}</div>
+                                    <div style="font-size:11px; opacity:0.7">UID: ${c.uid}</div>
+                                </div>
+                            </div>
+                            <div class="contact-actions">
+                                <button class="c-btn" onclick='Chat.open(${JSON.stringify(c)})'>Chat</button>
+                                <button class="c-btn bl" onclick='Chat.blockFromSearch()'>Block</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // TEXT RENDER (Sanitized)
+                    const span = document.createElement('span');
+                    span.innerText = msg.content;
+                    contentHtml = span.outerHTML;
+                }
 
                 div.innerHTML = `
                     <div class="bubble ${isMe?'sent':'recv'}">
                         ${reply}
-                        ${msg.content}
+                        ${contentHtml}
                         <div class="bubble-time">
                             ${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
                             ${isMe ? '<span>✓✓</span>' : ''}
@@ -707,30 +738,17 @@ onValue(messagesRef, (snap) => {
                     </div>
                 `;
                 container.appendChild(div);
-            },
-            openProfile: () => {
-                document.getElementById('prof-name').innerText = State.user.nickname;
-                document.getElementById('prof-uid').innerText = `UID: ${State.user.uid}`;
-                UI.renderAvatar('prof-av', State.user);
-                UI.openModal('modal-profile');
-            },
-            goHome: () => { State.chat=null; UI.changeView('view-home'); },
-            openModal: (id) => document.getElementById(id).style.display='flex',
-            closeModal: (id) => document.getElementById(id).style.display='none'
+            }
         };
 
-        function stringToColor(str) {
+        function stringHash(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            return `hsl(${hash % 360}, 60%, 50%)`;
+            return hash;
         }
 
-        window.Auth = Auth; 
-        window.Chat = Chat; 
-        window.UI = UI;
+        window.Auth = Auth; window.Chat = Chat; window.UI = UI; window.Data = Data; window.State = State;
         window.onload = Auth.init;
-        document.onclick = (e) => { if(!e.target.closest('.btn-icon')) document.getElementById('chat-drop').style.display='none'; };
-        document.getElementById('msg-input').onkeypress = (e) => { if(e.key==='Enter') Chat.send(); };
     </script>
 </body>
 </html>
